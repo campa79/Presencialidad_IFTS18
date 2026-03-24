@@ -962,10 +962,12 @@
         function getExactDate(dia, rangeStr) {
             const dayMap = { 'Lunes': 0, 'Martes': 1, 'Miércoles': 2, 'Jueves': 3, 'Viernes': 4 };
             const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            // Specific holidays provided by user
+            const holidays = ["23/3", "24/4", "2/4", "3/4", "1/5", "25/5", "15/6", "9/7", "10/7"];
             
             // Extract HH/MM from range "DD/MM al DD/MM" or similar
             const match = rangeStr.match(/(\d+)\/(\d+)/);
-            if (!match) return { short: dia, full: dia }; 
+            if (!match) return { short: dia, full: dia, isHoliday: false }; 
 
             let day = parseInt(match[1]);
             let month = parseInt(match[2]) - 1; // 0-indexed month
@@ -981,11 +983,16 @@
             const finalMonthNum = d.getMonth();
             const finalMonthName = monthNames[finalMonthNum];
             
+            // Check if this date is in our holiday list
+            const dateStr = `${finalDay}/${finalMonthNum + 1}`;
+            const isHoliday = holidays.includes(dateStr);
+            
             const fullDate = `${dia} ${finalDay} de ${finalMonthName}`;
             return {
                 short: `${dia} ${finalDay}`,
                 full: fullDate,
-                formatted: fullDate
+                formatted: fullDate,
+                isHoliday: isHoliday
             };
         }
 
@@ -1046,6 +1053,7 @@
                             semanaStr: week.SEMANA,
                             fechas: week.FECHAS,
                             exactDate: dateDetails.full,
+                            isHoliday: dateDetails.isHoliday,
                             aula: value
                         });
                     }
@@ -1088,7 +1096,7 @@
                         
                         <div class="detail-row" style="color: #0f172a;">
                             <i class="fas fa-map-marker-alt" style="color: #2563eb;"></i> 
-                            <span style="font-weight:500;">Aula: ${item.aula}</span>
+                            <span style="font-weight:500;">Aula: ${item.isHoliday ? '<strong style="color: #ef4444; text-transform: uppercase;">Feriado</strong>' : item.aula}</span>
                         </div>
                         
                         <div class="detail-row" style="font-size:0.95rem; color:#64748b; margin-top: 1rem; border-top: 1px solid #e2e8f0; padding-top: 0.75rem;">
