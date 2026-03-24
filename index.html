@@ -959,6 +959,36 @@
             return true;
         }
 
+        function getExactDate(dia, rangeStr) {
+            const dayMap = { 'Lunes': 0, 'Martes': 1, 'Miércoles': 2, 'Jueves': 3, 'Viernes': 4 };
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            
+            // Extract HH/MM from range "DD/MM al DD/MM" or similar
+            const match = rangeStr.match(/(\d+)\/(\d+)/);
+            if (!match) return { short: dia, full: dia }; 
+
+            let day = parseInt(match[1]);
+            let month = parseInt(match[2]) - 1; // 0-indexed month
+            
+            // We use 2026 as the reference year for date arithmetic
+            const d = new Date(2026, month, day);
+            
+            // Add offset based on day of week
+            const offset = dayMap[dia] || 0;
+            d.setDate(d.getDate() + offset);
+            
+            const finalDay = d.getDate();
+            const finalMonthNum = d.getMonth();
+            const finalMonthName = monthNames[finalMonthNum];
+            
+            const fullDate = `${dia} ${finalDay} de ${finalMonthName}`;
+            return {
+                short: `${dia} ${finalDay}`,
+                full: fullDate,
+                formatted: fullDate
+            };
+        }
+
         function renderResults() {
             const searchStr = inputSearch.value.trim().toLowerCase();
             
@@ -1009,11 +1039,13 @@
                 schedule.forEach(week => {
                     const value = week[tc.comision];
                     if (isPresencial(value)) {
+                        const dateDetails = getExactDate(tc.dia, week.FECHAS);
                         presencialAssignments.push({
                             ...tc,
                             semana: parseInt(week.SEMANA), 
                             semanaStr: week.SEMANA,
                             fechas: week.FECHAS,
+                            exactDate: dateDetails.full,
                             aula: value
                         });
                     }
@@ -1051,7 +1083,7 @@
                         <div class="card-title" style="color: #0f172a;">${item.materia}</div>
                         
                         <div class="detail-row" style="color: #6366f1; font-weight: 600;">
-                            <i class="fas fa-calendar-day" style="color: #2563eb;"></i> ${item.dia} (${item.fechas})
+                            <i class="fas fa-calendar-day" style="color: #2563eb;"></i> ${item.exactDate} (${item.fechas})
                         </div>
                         
                         <div class="detail-row" style="color: #0f172a;">
@@ -1089,11 +1121,10 @@
                 pdf.text("No se encontraron clases presenciales.", 14, y);
             } else {
                 cards.forEach(card => {
-                    // Extract text content from each card
                     const headerTxt = card.querySelector('.card-header').innerText.trim().replace(/\n/g, ' - ');
                     const titleTxt = card.querySelector('.card-title').innerText.trim();
                     const details = card.querySelectorAll('.detail-row');
-                    const diaTxt = details[0].innerText.trim();
+                    const fechaTxt = details[0].innerText.trim(); // Now contains the exact date string
                     const aulaTxt = details[1].innerText.trim();
                     const profTxt = details[2].innerText.trim();
                     
@@ -1112,7 +1143,7 @@
                     pdf.text(`Materia: ${titleTxt}`, 14, y);
                     y += 6;
                     
-                    pdf.text(`${diaTxt}`, 14, y);
+                    pdf.text(`Fecha: ${fechaTxt}`, 14, y);
                     y += 6;
                     
                     pdf.text(aulaTxt, 14, y);
