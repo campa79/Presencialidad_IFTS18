@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Presencialidad por Profesor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .container { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem; animation: fadeIn 0.8s ease-out; }
+        header { text-align: center; padding: 3rem 2rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        h1 { font-size: 2.1rem; background: linear-gradient(to right, #1d4ed8, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+        
+        .search-container { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .search-container label { font-size: 1rem; color: var(--text-main); font-weight: 600; }
+        .input-wrapper { position: relative; width: 100%; }
+        .input-wrapper i { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem; }
+        input { width: 100%; background: #f1f5f9; border: 2px solid #cbd5e1; color: var(--text-main); padding: 1rem 1rem 1rem 3.5rem; border-radius: 12px; font-size: 1.2rem; outline: none; transition: all 0.3s; font-family: inherit; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); background: #ffffff; }
+        
+        .filters-summary { font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; font-weight: 500; text-align: center; }
+        
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; border-left: 5px solid var(--success); box-shadow: var(--shadow); }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem; }
+        .badge { background: #d1fae5; color: #047857; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .detail-row { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; font-size: 1.05rem; color: var(--text-main); }
+        .detail-row i { color: var(--primary); width: 20px; text-align: center; }
+        
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); font-size: 1.2rem; }
+        .empty-state i { font-size: 4rem; opacity: 0.4; margin-bottom: 1.5rem; display: block; }
+        
+        .download-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: #ef4444; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 1rem; outline: none; }
+        .download-btn:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+        .export-mode { background: #ffffff !important; padding: 2rem; }
+        .export-mode .filters-summary { color: #000000 !important; }
+        .export-mode .card { box-shadow: none !important; border: 2px solid #000000 !important; background: #ffffff !important; }
+        .export-mode .card * { color: #000000 !important; }
+        .export-mode .card i { color: #000000 !important; }
+        .export-mode .badge { border: 1px solid #000000 !important; background: transparent !important; color: #000000 !important; }
+        .export-mode .detail-row { border-color: #000000 !important; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="data:image/jpeg;base64,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" alt="Logo IFTS 18" style="max-height: 100px; width: auto; margin-bottom: 1.5rem; object-fit: contain;">
+            <h1>Consulta de Presencialidad</h1>
+            <p style="color:var(--text-muted); font-size: 1.1rem; margin-top: 0.5rem;">Buscá tu apellido para conocer tus semanas presenciales asignadas de dictado.</p>
+        </header>
+
+        <main>
+            <div class="search-container">
+                <label for="s-profesor">Filtrar por Profesor</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="s-profesor" placeholder="Ingresa tu apellido (Ej. Bonini)" autocomplete="off">
+                </div>
+            </div>
+            
+            <div id="filtersSummary" class="filters-summary"></div>
+            <div id="results" class="grid-cards">
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <i class="fas fa-keyboard"></i>
+                    Ingresa un nombre de profesor para visualizar el cronograma presencial.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const DB = {
+  "schedule": [
+    {
+      "SEMANA": "1",
+      "FECHAS": "16/3 al 20/3",
+      "TSAS 1C": "SALÓN PB",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "201 2° Piso",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": "202 2° Piso"
+    },
+    {
+      "SEMANA": "2",
+      "FECHAS": "23/3 al 27/3",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "202 2° Piso",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "SALÓN PB",
+      "TSDS 2C": "",
+      "TSDS 3C": "201 2° Piso",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "3",
+      "FECHAS": "30/3 al 3/4",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "202 2° Piso",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "SALÓN PB",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "201 2° Piso",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "4",
+      "FECHAS": "6/4 al 10/4",
+      "TSAS 1C": "",
+      "TSAS 2C": "SALÓN PB",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "201 2° Piso",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "5",
+      "FECHAS": "13/4 al 17/4",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "SALÓN PB",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "201 2° Piso",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "6",
+      "FECHAS": "20/4 al 24/4",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "201 2° Piso",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "SALÓN PB",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "7",
+      "FECHAS": "27/4 al 1/5",
+      "TSAS 1C": "Disp. Docente",
+      "TSAS 2C": "Disp. Docente",
+      "TSAS 3C": "Disp. Docente",
+      "TSAS 4C": "Disp. Docente",
+      "TSAS 5C": "Disp. Docente",
+      "TSCDIA 1C": "Disp. Docente",
+      "TSCDIA 2C": "Disp. Docente",
+      "TSCDIA 3C": "Disp. Docente",
+      "TSCDIA 4C": "Disp. Docente",
+      "TSCDIA 5C": "Disp. Docente",
+      "TSDS 1C": "Disp. Docente",
+      "TSDS 2C": "Disp. Docente",
+      "TSDS 3C": "Disp. Docente",
+      "TSDS 4C": "Disp. Docente",
+      "TSDS 5C": "Disp. Docente"
+    },
+    {
+      "SEMANA": "8",
+      "FECHAS": "4/5 al 8/5",
+      "TSAS 1C": "Disp. Docente",
+      "TSAS 2C": "Disp. Docente",
+      "TSAS 3C": "Disp. Docente",
+      "TSAS 4C": "Disp. Docente",
+      "TSAS 5C": "Disp. Docente",
+      "TSCDIA 1C": "Disp. Docente",
+      "TSCDIA 2C": "Disp. Docente",
+      "TSCDIA 3C": "Disp. Docente",
+      "TSCDIA 4C": "Disp. Docente",
+      "TSCDIA 5C": "Disp. Docente",
+      "TSDS 1C": "Disp. Docente",
+      "TSDS 2C": "Disp. Docente",
+      "TSDS 3C": "Disp. Docente",
+      "TSDS 4C": "Disp. Docente",
+      "TSDS 5C": "Disp. Docente"
+    },
+    {
+      "SEMANA": "9",
+      "FECHAS": "11/5 al 15/5",
+      "TSAS 1C": "SALÓN PB",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "201 2° Piso",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": "202 2° Piso"
+    },
+    {
+      "SEMANA": "10",
+      "FECHAS": "18/5 al 22/5",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "202 2° Piso",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "SALÓN PB",
+      "TSDS 2C": "",
+      "TSDS 3C": "201 2° Piso",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "11",
+      "FECHAS": "25/5 al 29/5",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "202 2° Piso",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "SALÓN PB",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "201 2° Piso",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "12",
+      "FECHAS": "1/6 al 5/6",
+      "TSAS 1C": "",
+      "TSAS 2C": "SALÓN PB",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "201 2° Piso",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "13",
+      "FECHAS": "8/6 al 12/6",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "SALÓN PB",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "201 2° Piso",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "14",
+      "FECHAS": "15/6 al 19/6",
+      "TSAS 1C": "",
+      "TSAS 2C": "",
+      "TSAS 3C": "201 2° Piso",
+      "TSAS 4C": "",
+      "TSAS 5C": "",
+      "TSCDIA 1C": "",
+      "TSCDIA 2C": "",
+      "TSCDIA 3C": "",
+      "TSCDIA 4C": "",
+      "TSCDIA 5C": "",
+      "TSDS 1C": "",
+      "TSDS 2C": "SALÓN PB",
+      "TSDS 3C": "",
+      "TSDS 4C": "",
+      "TSDS 5C": ""
+    },
+    {
+      "SEMANA": "15",
+      "FECHAS": "22/6 al 26/6",
+      "TSAS 1C": "Disp. Docente",
+      "TSAS 2C": "Disp. Docente",
+      "TSAS 3C": "Disp. Docente",
+      "TSAS 4C": "Disp. Docente",
+      "TSAS 5C": "Disp. Docente",
+      "TSCDIA 1C": "Disp. Docente",
+      "TSCDIA 2C": "Disp. Docente",
+      "TSCDIA 3C": "Disp. Docente",
+      "TSCDIA 4C": "Disp. Docente",
+      "TSCDIA 5C": "Disp. Docente",
+      "TSDS 1C": "Disp. Docente",
+      "TSDS 2C": "Disp. Docente",
+      "TSDS 3C": "Disp. Docente",
+      "TSDS 4C": "Disp. Docente",
+      "TSDS 5C": "Disp. Docente"
+    },
+    {
+      "SEMANA": "16",
+      "FECHAS": "29/6 al 3/7",
+      "TSAS 1C": "Disp. Docente",
+      "TSAS 2C": "Disp. Docente",
+      "TSAS 3C": "Disp. Docente",
+      "TSAS 4C": "Disp. Docente",
+      "TSAS 5C": "Disp. Docente",
+      "TSCDIA 1C": "Disp. Docente",
+      "TSCDIA 2C": "Disp. Docente",
+      "TSCDIA 3C": "Disp. Docente",
+      "TSCDIA 4C": "Disp. Docente",
+      "TSCDIA 5C": "Disp. Docente",
+      "TSDS 1C": "Disp. Docente",
+      "TSDS 2C": "Disp. Docente",
+      "TSDS 3C": "Disp. Docente",
+      "TSDS 4C": "Disp. Docente",
+      "TSDS 5C": "Disp. Docente"
+    }
+  ],
+  "professors": {
+    "TSAS 1C": {
+      "Lunes": [
+        {
+          "Profesor": "Bonini",
+          "Materia": "Técnicas de Programación"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Lussiano",
+          "Materia": "Administración de Base de Datos"
+        },
+        {
+          "Profesor": "Bonini",
+          "Materia": "Técnicas de Programación"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Lussiano",
+          "Materia": "Administración de Base de Datos"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Pillón",
+          "Materia": "Elementos de Análisis Matemático"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Ziccardi",
+          "Materia": "Lógica Computacional"
+        }
+      ]
+    },
+    "TSAS 2C": {
+      "Lunes": [
+        {
+          "Profesor": "Tirado",
+          "Materia": "PP1 Aproximación al Campo Laboral"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Celi",
+          "Materia": "Inglés"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "A definir",
+          "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Reynoso",
+          "Materia": "Estadística y Probabilidad para el Análisis de Sistemas"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Escobar",
+          "Materia": "Modelado y Diseño de Software"
+        }
+      ]
+    },
+    "TSAS 3C": {
+      "Lunes": [
+        {
+          "Profesor": "León",
+          "Materia": "Análisis de Sistemas"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Perez",
+          "Materia": "Diseño e Implementación de Pruebas de Software"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Marchetti",
+          "Materia": "PP2 Relevamiento de Requerimientos de Usuario"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Conti",
+          "Materia": "Ingeniería de Software"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Blasco",
+          "Materia": "Taller de Comunicación"
+        }
+      ]
+    },
+    "TSAS 4C": {
+      "Lunes": [
+        {
+          "Profesor": "Litovisius",
+          "Materia": "PP3 Diseño de Arquitectura de Sistemas"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Muotri",
+          "Materia": "Gestión de Proyectos"
+        },
+        {
+          "Profesor": "Litovisius",
+          "Materia": "PP3 Diseño de Arquitectura de Sistemas"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Santoro",
+          "Materia": "Redes y Ciberseguridad"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Straccia",
+          "Materia": "Trabajo, Tecnología y Sociedad"
+        },
+        {
+          "Profesor": "Santoro",
+          "Materia": "Redes y Ciberseguridad"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Fernandez",
+          "Materia": "Seminario de Actualización en Tecnologías Web"
+        }
+      ]
+    },
+    "TSAS 5C": {
+      "Lunes": [
+        {
+          "Profesor": "Lussiano",
+          "Materia": "Liderazgo y Gestión de Equipos"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Farioli",
+          "Materia": "PP4 Proyecto Integrador"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Arroyo Díaz",
+          "Materia": "Aseguramiento de Calidad de los Sistemas"
+        },
+        {
+          "Profesor": "Farioli",
+          "Materia": "PP4 Proyecto Integrador"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Rusatti",
+          "Materia": "Arquitectura de Sistemas en la Nube"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Lussiano",
+          "Materia": "Sistemas de Gestión"
+        }
+      ]
+    },
+    "TSCDIA 1C": {
+      "Lunes": [
+        {
+          "Profesor": "Presumido",
+          "Materia": "Lógica Computacional"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Marchetti",
+          "Materia": "Administración de Base de Datos"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Capara",
+          "Materia": "Técnicas de Programación"
+        },
+        {
+          "Profesor": "Marchetti",
+          "Materia": "Administración de Base de Datos"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Presumido",
+          "Materia": "Elementos de Análisis Matemático"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Capara",
+          "Materia": "Técnicas de Programación"
+        }
+      ]
+    },
+    "TSCDIA 2C": {
+      "Lunes": [
+        {
+          "Profesor": "Blumenkranz",
+          "Materia": "PP1 Aproximación al Campo Laboral"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "León",
+          "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Reynoso",
+          "Materia": "Estadística y Probabilidad para la Gestión de Datos"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Ferrero",
+          "Materia": "Taller de Comunicación"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "León",
+          "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
+        }
+      ]
+    },
+    "TSCDIA 3C": {
+      "Lunes": [
+        {
+          "Profesor": "Polcán",
+          "Materia": "Gestión de Proyectos"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Planiscig",
+          "Materia": "Ciencia de Datos"
+        },
+        {
+          "Profesor": "Fassio",
+          "Materia": "Procesamiento de Aprendizaje Automático"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "León",
+          "Materia": "Modelizado de Sistemas de IA"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Fassio",
+          "Materia": "Procesamiento de Aprendizaje Automático"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Planiscig",
+          "Materia": "Ciencia de Datos"
+        }
+      ]
+    },
+    "TSCDIA 4C": {
+      "Lunes": [
+        {
+          "Profesor": "Pita",
+          "Materia": "PP3 Análisis y Exploración de Datos"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Pita",
+          "Materia": "Modelado y Minería de Datos"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Pita",
+          "Materia": "Modelado y Minería de Datos"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Escobar",
+          "Materia": "Técnicas de Procesamiento de Habla"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Bachoer",
+          "Materia": "Trabajo, Tecnología y Sociedad"
+        },
+        {
+          "Profesor": "Escobar",
+          "Materia": "Técnicas de Procesamiento de Habla"
+        }
+      ]
+    },
+    "TSCDIA 5C": {
+      "Lunes": [
+        {
+          "Profesor": "Planiscig",
+          "Materia": "PP4 Proyecto Integrador"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Planiscig",
+          "Materia": "PP4 Proyecto Integrador"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Bonini",
+          "Materia": "Técnicas de Procesamiento Digital de Imágenes"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Bonini",
+          "Materia": "Técnicas de Procesamiento Digital de Imágenes"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Planiscig",
+          "Materia": "Seminario de Actualización"
+        }
+      ]
+    },
+    "TSDS 1C": {
+      "Lunes": [
+        {
+          "Profesor": "Perez",
+          "Materia": "Técnicas de Programación"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Gonzalez",
+          "Materia": "Lógica Computacional"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Perez",
+          "Materia": "Técnicas de Programación"
+        },
+        {
+          "Profesor": "Odstrcil",
+          "Materia": "Administración de Base de Datos"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Odstrcil",
+          "Materia": "Administración de Base de Datos"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Reynoso",
+          "Materia": "Elementos de Análisis Matemático"
+        }
+      ]
+    },
+    "TSDS 2C": {
+      "Lunes": [
+        {
+          "Profesor": "Cefail",
+          "Materia": "Inglés"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Murua",
+          "Materia": "Estadística y Probabilidad para el Desarrollo de Software"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Romitelli",
+          "Materia": "PP1 Aproximación al Campo Laboral"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Iberti",
+          "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Iberti",
+          "Materia": "Modelado y Diseño de Software"
+        },
+        {
+          "Profesor": "Iberti",
+          "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+        }
+      ]
+    },
+    "TSDS 3C": {
+      "Lunes": [
+        {
+          "Profesor": "Santoro",
+          "Materia": "PP2 Desarrollo de Sistemas de Información Orientados a la Gestión y Apoyo a las Decisiones"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Peña",
+          "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Peña",
+          "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
+        },
+        {
+          "Profesor": "Perez",
+          "Materia": "Metodología de Prueba de Sistemas"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Santoro",
+          "Materia": "Tecnologías de la Información y de la Comunicación"
+        },
+        {
+          "Profesor": "Ferraro",
+          "Materia": "Taller de Comunicación"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Perez",
+          "Materia": "Metodología de Prueba de Sistemas"
+        }
+      ]
+    },
+    "TSDS 4C": {
+      "Lunes": [
+        {
+          "Profesor": "Lussiano",
+          "Materia": "Ingeniería de Software"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Bonini",
+          "Materia": "Desarrollo de Sistemas Web (Back End)"
+        },
+        {
+          "Profesor": "Lussiano",
+          "Materia": "Ingeniería de Software"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "A definir",
+          "Materia": "Desarrollo de Sistemas Web (Front End)"
+        },
+        {
+          "Profesor": "Uñates",
+          "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Uñates",
+          "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
+        }
+      ],
+      "Viernes": [
+        {
+          "Profesor": "Bonini",
+          "Materia": "Desarrollo de Sistemas Web (Back End)"
+        }
+      ]
+    },
+    "TSDS 5C": {
+      "Lunes": [
+        {
+          "Profesor": "Campagna",
+          "Materia": "PP4 Proyecto Integrador"
+        }
+      ],
+      "Martes": [
+        {
+          "Profesor": "Rusatti",
+          "Materia": "Programación Sobre Redes"
+        }
+      ],
+      "Miércoles": [
+        {
+          "Profesor": "Cuñarro",
+          "Materia": "Trabajo, Tecnología y Sociedad"
+        },
+        {
+          "Profesor": "Fassio",
+          "Materia": "Seminario de Actualización"
+        }
+      ],
+      "Jueves": [
+        {
+          "Profesor": "Polcán",
+          "Materia": "Gestión de Proyectos"
+        }
+      ],
+      "Viernes": []
+    }
+  }
+};
+        const schedule = DB.schedule;
+        const professors = DB.professors;
+        const allComisiones = Object.keys(professors);
+
+        const inputSearch = document.getElementById('s-profesor');
+        const container = document.getElementById('results');
+        const summary = document.getElementById('filtersSummary');
+
+        function isPresencial(value) {
+            if (!value) return false;
+            // Evaluamos Disp. Docente como no requiere aula presencial estándar.
+            if (value.toLowerCase().includes("docente")) return false; 
+            return true;
+        }
+
+        function renderResults() {
+            const searchStr = inputSearch.value.trim().toLowerCase();
+            
+            if (!searchStr) {
+                summary.innerHTML = '';
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="fas fa-keyboard"></i>
+                        Ingresa un nombre o apellido para comenzar.
+                    </div>
+                `;
+                return;
+            }
+
+            let teacherClasses = [];
+            let foundNames = new Set();
+            
+            allComisiones.forEach(com => {
+                Object.entries(professors[com]).forEach(([dia, clases]) => {
+                    clases.forEach(c => {
+                        if (c.Profesor.toLowerCase().includes(searchStr)) {
+                            foundNames.add(c.Profesor);
+                            teacherClasses.push({
+                                profesor: c.Profesor,
+                                materia: c.Materia,
+                                comision: com,
+                                dia: dia
+                            });
+                        }
+                    });
+                });
+            });
+
+            if (teacherClasses.length === 0) {
+                summary.innerHTML = '';
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1; color: var(--danger)">
+                        <i class="fas fa-search-minus" style="color: var(--danger)"></i>
+                        No se encontró ningún profesor que coincida con "${searchStr}".
+                    </div>
+                `;
+                return;
+            }
+
+            let presencialAssignments = [];
+            
+            teacherClasses.forEach(tc => {
+                schedule.forEach(week => {
+                    const value = week[tc.comision];
+                    if (isPresencial(value)) {
+                        presencialAssignments.push({
+                            ...tc,
+                            semana: parseInt(week.SEMANA), 
+                            semanaStr: week.SEMANA,
+                            fechas: week.FECHAS,
+                            aula: value
+                        });
+                    }
+                });
+            });
+
+            if (presencialAssignments.length === 0) {
+                const names = Array.from(foundNames).join(", ");
+                summary.innerHTML = `Profesor(es): ${names}`;
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1; color: var(--warning)">
+                        <i class="fas fa-laptop-house" style="color: var(--warning)"></i>
+                        El profesor tiene asignaciones, pero ninguna requiere presencialidad directa según la matriz de aulas.
+                    </div>
+                `;
+                return;
+            }
+
+            presencialAssignments.sort((a, b) => a.semana - b.semana);
+
+            const namesDisp = Array.from(foundNames).join(" | ");
+            summary.innerHTML = `
+                <div><i class="fas fa-user-check"></i> Mostrando clases presenciales para: <strong>${namesDisp}</strong></div>
+                <button class="download-btn" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> Guardar como PDF</button>
+            `;
+
+            let html = '';
+            presencialAssignments.forEach((item, index) => {
+                html += `
+                    <div class="card" style="animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-delay: ${Math.min(index * 0.05, 1)}s; background: #ffffff; border: 1px solid #e2e8f0;">
+                        <div class="card-header" style="border-bottom: 1px solid #e2e8f0;">
+                            <span style="font-weight:700; color:#0f172a"><i class="fas fa-users" style="color:#64748b"></i> ${item.comision}</span>
+                            <span class="badge"><i class="fas fa-school"></i> Semana ${item.semanaStr}</span>
+                        </div>
+                        <div class="card-title" style="color: #0f172a;">${item.materia}</div>
+                        
+                        <div class="detail-row" style="color: #6366f1; font-weight: 600;">
+                            <i class="fas fa-calendar-day" style="color: #2563eb;"></i> ${item.dia} (${item.fechas})
+                        </div>
+                        
+                        <div class="detail-row" style="color: #0f172a;">
+                            <i class="fas fa-map-marker-alt" style="color: #2563eb;"></i> 
+                            <span style="font-weight:500;">Aula: ${item.aula}</span>
+                        </div>
+                        
+                        <div class="detail-row" style="font-size:0.95rem; color:#64748b; margin-top: 1rem; border-top: 1px solid #e2e8f0; padding-top: 0.75rem;">
+                            <i class="fas fa-user-tie" style="color: #2563eb;"></i> ${item.profesor}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function downloadPdf() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const profName = document.getElementById('s-profesor').value.trim() || 'Desconocido';
+            
+            pdf.setFontSize(16);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(`Cronograma Presencial - ${profName.toUpperCase()}`, 14, 20);
+            
+            pdf.setFontSize(11);
+            pdf.setFont("helvetica", "normal");
+            
+            let y = 30;
+            const cards = document.querySelectorAll('.card');
+            
+            if (cards.length === 0) {
+                pdf.text("No se encontraron clases presenciales.", 14, y);
+            } else {
+                cards.forEach(card => {
+                    // Extract text content from each card
+                    const headerTxt = card.querySelector('.card-header').innerText.trim().replace(/\n/g, ' - ');
+                    const titleTxt = card.querySelector('.card-title').innerText.trim();
+                    const details = card.querySelectorAll('.detail-row');
+                    const diaTxt = details[0].innerText.trim();
+                    const aulaTxt = details[1].innerText.trim();
+                    const profTxt = details[2].innerText.trim();
+                    
+                    // Add new page if content exceeds A4 length
+                    if (y > 270) {
+                        pdf.addPage();
+                        y = 20;
+                    }
+                    
+                    // Print structured text block
+                    pdf.setFont("helvetica", "bold");
+                    pdf.text(headerTxt, 14, y);
+                    y += 6;
+                    
+                    pdf.setFont("helvetica", "normal");
+                    pdf.text(`Materia: ${titleTxt}`, 14, y);
+                    y += 6;
+                    
+                    pdf.text(`${diaTxt}`, 14, y);
+                    y += 6;
+                    
+                    pdf.text(aulaTxt, 14, y);
+                    y += 6;
+                    
+                    pdf.text(`Docente: ${profTxt}`, 14, y);
+                    y += 10;
+                    
+                    // Separator line
+                    pdf.setDrawColor(200);
+                    pdf.line(14, y - 3, 196, y - 3);
+                    y += 6;
+                });
+            }
+            
+            pdf.save(`cronograma_${profName}.pdf`);
+        }
+
+        inputSearch.addEventListener('input', renderResults);
+    </script>
+</body>
+</html>
