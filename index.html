@@ -63,6 +63,11 @@
         .download-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: #ef4444; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 1rem; outline: none; }
         .download-btn:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 
+        .day-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; justify-content: center; }
+        .day-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-muted); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .day-btn:hover { background: #e2e8f0; border-color: var(--primary); color: var(--primary); }
+        .day-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+
         .export-mode { background: #ffffff !important; padding: 2rem; }
         .export-mode .filters-summary { color: #000000 !important; }
         .export-mode .card { box-shadow: none !important; border: 2px solid #000000 !important; background: #ffffff !important; }
@@ -89,6 +94,13 @@
                 <div class="input-wrapper">
                     <i class="fas fa-search"></i>
                     <input type="text" id="s-profesor" placeholder="Ingresa tu apellido" autocomplete="off">
+                </div>
+                <div class="day-filter" id="dayButtons">
+                    <button class="day-btn" data-day="Lunes">Lunes</button>
+                    <button class="day-btn" data-day="Martes">Martes</button>
+                    <button class="day-btn" data-day="Miércoles">Miércoles</button>
+                    <button class="day-btn" data-day="Jueves">Jueves</button>
+                    <button class="day-btn" data-day="Viernes">Viernes</button>
                 </div>
             </div>
             
@@ -951,6 +963,7 @@
         const inputSearch = document.getElementById('s-profesor');
         const container = document.getElementById('results');
         const summary = document.getElementById('filtersSummary');
+        let selectedDay = null;
 
         function isPresencial(value) {
             if (!value) return false;
@@ -999,12 +1012,12 @@
         function renderResults() {
             const searchStr = inputSearch.value.trim().toLowerCase();
             
-            if (!searchStr) {
+            if (!searchStr && !selectedDay) {
                 summary.innerHTML = '';
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1;">
                         <i class="fas fa-keyboard"></i>
-                        Ingresa un nombre o apellido para comenzar.
+                        Ingresa un nombre o apellido, o selecciona un día para comenzar.
                     </div>
                 `;
                 return;
@@ -1014,9 +1027,13 @@
             let foundNames = new Set();
             
             allComisiones.forEach(com => {
-                Object.entries(professors[com]).forEach(([dia, clases]) => {
+                const daysToCheck = selectedDay ? [selectedDay] : Object.keys(professors[com]);
+                
+                daysToCheck.forEach(dia => {
+                    const clases = professors[com][dia] || [];
                     clases.forEach(c => {
-                        if (c.Profesor.toLowerCase().includes(searchStr)) {
+                        const matchName = !searchStr || c.Profesor.toLowerCase().includes(searchStr);
+                        if (matchName) {
                             foundNames.add(c.Profesor);
                             teacherClasses.push({
                                 profesor: c.Profesor,
@@ -1031,10 +1048,11 @@
 
             if (teacherClasses.length === 0) {
                 summary.innerHTML = '';
+                const criteria = selectedDay ? (searchStr ? `"${searchStr}" para el día ${selectedDay}` : `el día ${selectedDay}`) : `"${searchStr}"`;
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1; color: var(--danger)">
                         <i class="fas fa-search-minus" style="color: var(--danger)"></i>
-                        No se encontró ningún profesor que coincida con "${searchStr}".
+                        No se encontró ningún resultado que coincida con ${criteria}.
                     </div>
                 `;
                 return;
@@ -1075,8 +1093,10 @@
             presencialAssignments.sort((a, b) => a.semana - b.semana);
 
             const namesDisp = Array.from(foundNames).join(" | ");
+            const filterTitle = selectedDay ? (searchStr ? `<strong>${namesDisp}</strong> el día <strong>${selectedDay}</strong>` : `Clases del día <strong>${selectedDay}</strong>`) : `<strong>${namesDisp}</strong>`;
+            
             summary.innerHTML = `
-                <div><i class="fas fa-user-check"></i> Mostrando clases presenciales para: <strong>${namesDisp}</strong></div>
+                <div><i class="fas fa-calendar-check"></i> Mostrando clases presenciales para: ${filterTitle}</div>
                 <button class="download-btn" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> Guardar como PDF</button>
             `;
 
@@ -1113,11 +1133,12 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             
-            const profName = document.getElementById('s-profesor').value.trim() || 'Desconocido';
+            const profName = document.getElementById('s-profesor').value.trim();
+            const titlePrefix = selectedDay ? (profName ? `${profName.toUpperCase()} - ${selectedDay.toUpperCase()}` : selectedDay.toUpperCase()) : profName.toUpperCase();
             
             pdf.setFontSize(16);
             pdf.setFont("helvetica", "bold");
-            pdf.text(`Cronograma Presencial - ${profName.toUpperCase()}`, 14, 20);
+            pdf.text(`Cronograma Presencial - ${titlePrefix}`, 14, 20);
             
             pdf.setFontSize(11);
             pdf.setFont("helvetica", "normal");
@@ -1171,6 +1192,21 @@
         }
 
         inputSearch.addEventListener('input', renderResults);
+
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const day = btn.getAttribute('data-day');
+                if (selectedDay === day) {
+                    selectedDay = null;
+                    btn.classList.remove('active');
+                } else {
+                    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+                    selectedDay = day;
+                    btn.classList.add('active');
+                }
+                renderResults();
+            });
+        });
     </script>
 </body>
 </html>
