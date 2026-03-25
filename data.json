@@ -449,7 +449,7 @@
     "TSAS 5C": {
       "Lunes": [
         {
-          "Profesor": "Lussiano",
+          "Profesor": "Eckerdt",
           "Materia": "Liderazgo y Gestión de Equipos"
         }
       ],
@@ -711,17 +711,17 @@
       ],
       "Jueves": [
         {
-          "Profesor": "Iberti",
+          "Profesor": "A definir",
           "Materia": "Desarrollo de Sistemas Orientado a Objetos"
         }
       ],
       "Viernes": [
         {
-          "Profesor": "Iberti",
+          "Profesor": "A definir",
           "Materia": "Modelado y Diseño de Software"
         },
         {
-          "Profesor": "Iberti",
+          "Profesor": "A definir",
           "Materia": "Desarrollo de Sistemas Orientado a Objetos"
         }
       ]

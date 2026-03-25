@@ -63,11 +63,6 @@
         .download-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: #ef4444; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 1rem; outline: none; }
         .download-btn:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 
-        .day-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; justify-content: center; }
-        .day-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--text-muted); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
-        .day-btn:hover { background: #e2e8f0; border-color: var(--primary); color: var(--primary); }
-        .day-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-
         .export-mode { background: #ffffff !important; padding: 2rem; }
         .export-mode .filters-summary { color: #000000 !important; }
         .export-mode .card { box-shadow: none !important; border: 2px solid #000000 !important; background: #ffffff !important; }
@@ -95,13 +90,6 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="s-profesor" placeholder="Ingresa tu apellido" autocomplete="off">
                 </div>
-                <div class="day-filter" id="dayButtons">
-                    <button class="day-btn" data-day="Lunes">Lunes</button>
-                    <button class="day-btn" data-day="Martes">Martes</button>
-                    <button class="day-btn" data-day="Miércoles">Miércoles</button>
-                    <button class="day-btn" data-day="Jueves">Jueves</button>
-                    <button class="day-btn" data-day="Viernes">Viernes</button>
-                </div>
             </div>
             
             <div id="filtersSummary" class="filters-summary"></div>
@@ -116,845 +104,845 @@
 
     <script>
         const DB = {
-  "schedule": [
-    {
-      "SEMANA": "1",
-      "FECHAS": "16/3 al 20/3",
-      "TSAS 1C": "SALÓN PB",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "201 2° Piso",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": "202 2° Piso"
-    },
-    {
-      "SEMANA": "2",
-      "FECHAS": "23/3 al 27/3",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "202 2° Piso",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "SALÓN PB",
-      "TSDS 2C": "",
-      "TSDS 3C": "201 2° Piso",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "3",
-      "FECHAS": "30/3 al 3/4",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "202 2° Piso",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "SALÓN PB",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "201 2° Piso",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "4",
-      "FECHAS": "6/4 al 10/4",
-      "TSAS 1C": "",
-      "TSAS 2C": "SALÓN PB",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "201 2° Piso",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "5",
-      "FECHAS": "13/4 al 17/4",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "SALÓN PB",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "201 2° Piso",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "6",
-      "FECHAS": "20/4 al 24/4",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "201 2° Piso",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "SALÓN PB",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "7",
-      "FECHAS": "27/4 al 1/5",
-      "TSAS 1C": "Disp. Docente",
-      "TSAS 2C": "Disp. Docente",
-      "TSAS 3C": "Disp. Docente",
-      "TSAS 4C": "Disp. Docente",
-      "TSAS 5C": "Disp. Docente",
-      "TSCDIA 1C": "Disp. Docente",
-      "TSCDIA 2C": "Disp. Docente",
-      "TSCDIA 3C": "Disp. Docente",
-      "TSCDIA 4C": "Disp. Docente",
-      "TSCDIA 5C": "Disp. Docente",
-      "TSDS 1C": "Disp. Docente",
-      "TSDS 2C": "Disp. Docente",
-      "TSDS 3C": "Disp. Docente",
-      "TSDS 4C": "Disp. Docente",
-      "TSDS 5C": "Disp. Docente"
-    },
-    {
-      "SEMANA": "8",
-      "FECHAS": "4/5 al 8/5",
-      "TSAS 1C": "Disp. Docente",
-      "TSAS 2C": "Disp. Docente",
-      "TSAS 3C": "Disp. Docente",
-      "TSAS 4C": "Disp. Docente",
-      "TSAS 5C": "Disp. Docente",
-      "TSCDIA 1C": "Disp. Docente",
-      "TSCDIA 2C": "Disp. Docente",
-      "TSCDIA 3C": "Disp. Docente",
-      "TSCDIA 4C": "Disp. Docente",
-      "TSCDIA 5C": "Disp. Docente",
-      "TSDS 1C": "Disp. Docente",
-      "TSDS 2C": "Disp. Docente",
-      "TSDS 3C": "Disp. Docente",
-      "TSDS 4C": "Disp. Docente",
-      "TSDS 5C": "Disp. Docente"
-    },
-    {
-      "SEMANA": "9",
-      "FECHAS": "11/5 al 15/5",
-      "TSAS 1C": "SALÓN PB",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "201 2° Piso",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": "202 2° Piso"
-    },
-    {
-      "SEMANA": "10",
-      "FECHAS": "18/5 al 22/5",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "202 2° Piso",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "SALÓN PB",
-      "TSDS 2C": "",
-      "TSDS 3C": "201 2° Piso",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "11",
-      "FECHAS": "25/5 al 29/5",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "202 2° Piso",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "SALÓN PB",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "201 2° Piso",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "12",
-      "FECHAS": "1/6 al 5/6",
-      "TSAS 1C": "",
-      "TSAS 2C": "SALÓN PB",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "201 2° Piso",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "13",
-      "FECHAS": "8/6 al 12/6",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "SALÓN PB",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "201 2° Piso",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "14",
-      "FECHAS": "15/6 al 19/6",
-      "TSAS 1C": "",
-      "TSAS 2C": "",
-      "TSAS 3C": "201 2° Piso",
-      "TSAS 4C": "",
-      "TSAS 5C": "",
-      "TSCDIA 1C": "",
-      "TSCDIA 2C": "",
-      "TSCDIA 3C": "",
-      "TSCDIA 4C": "",
-      "TSCDIA 5C": "",
-      "TSDS 1C": "",
-      "TSDS 2C": "SALÓN PB",
-      "TSDS 3C": "",
-      "TSDS 4C": "",
-      "TSDS 5C": ""
-    },
-    {
-      "SEMANA": "15",
-      "FECHAS": "22/6 al 26/6",
-      "TSAS 1C": "Disp. Docente",
-      "TSAS 2C": "Disp. Docente",
-      "TSAS 3C": "Disp. Docente",
-      "TSAS 4C": "Disp. Docente",
-      "TSAS 5C": "Disp. Docente",
-      "TSCDIA 1C": "Disp. Docente",
-      "TSCDIA 2C": "Disp. Docente",
-      "TSCDIA 3C": "Disp. Docente",
-      "TSCDIA 4C": "Disp. Docente",
-      "TSCDIA 5C": "Disp. Docente",
-      "TSDS 1C": "Disp. Docente",
-      "TSDS 2C": "Disp. Docente",
-      "TSDS 3C": "Disp. Docente",
-      "TSDS 4C": "Disp. Docente",
-      "TSDS 5C": "Disp. Docente"
-    },
-    {
-      "SEMANA": "16",
-      "FECHAS": "29/6 al 3/7",
-      "TSAS 1C": "Disp. Docente",
-      "TSAS 2C": "Disp. Docente",
-      "TSAS 3C": "Disp. Docente",
-      "TSAS 4C": "Disp. Docente",
-      "TSAS 5C": "Disp. Docente",
-      "TSCDIA 1C": "Disp. Docente",
-      "TSCDIA 2C": "Disp. Docente",
-      "TSCDIA 3C": "Disp. Docente",
-      "TSCDIA 4C": "Disp. Docente",
-      "TSCDIA 5C": "Disp. Docente",
-      "TSDS 1C": "Disp. Docente",
-      "TSDS 2C": "Disp. Docente",
-      "TSDS 3C": "Disp. Docente",
-      "TSDS 4C": "Disp. Docente",
-      "TSDS 5C": "Disp. Docente"
-    }
-  ],
-  "professors": {
-    "TSAS 1C": {
-      "Lunes": [
-        {
-          "Profesor": "Bonini",
-          "Materia": "Técnicas de Programación"
+        "schedule": [
+                {
+                        "SEMANA": "1",
+                        "FECHAS": "16/3 al 20/3",
+                        "TSAS 1C": "SALÓN PB",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "201 2° Piso",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": "202 2° Piso"
+                },
+                {
+                        "SEMANA": "2",
+                        "FECHAS": "23/3 al 27/3",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "202 2° Piso",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "SALÓN PB",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "201 2° Piso",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "3",
+                        "FECHAS": "30/3 al 3/4",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "202 2° Piso",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "SALÓN PB",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "201 2° Piso",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "4",
+                        "FECHAS": "6/4 al 10/4",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "SALÓN PB",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "201 2° Piso",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "5",
+                        "FECHAS": "13/4 al 17/4",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "SALÓN PB",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "201 2° Piso",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "6",
+                        "FECHAS": "20/4 al 24/4",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "201 2° Piso",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "SALÓN PB",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "7",
+                        "FECHAS": "27/4 al 1/5",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                },
+                {
+                        "SEMANA": "8",
+                        "FECHAS": "4/5 al 8/5",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                },
+                {
+                        "SEMANA": "9",
+                        "FECHAS": "11/5 al 15/5",
+                        "TSAS 1C": "SALÓN PB",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "201 2° Piso",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": "202 2° Piso"
+                },
+                {
+                        "SEMANA": "10",
+                        "FECHAS": "18/5 al 22/5",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "202 2° Piso",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "SALÓN PB",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "201 2° Piso",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "11",
+                        "FECHAS": "25/5 al 29/5",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "202 2° Piso",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "SALÓN PB",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "201 2° Piso",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "12",
+                        "FECHAS": "1/6 al 5/6",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "SALÓN PB",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "201 2° Piso",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "13",
+                        "FECHAS": "8/6 al 12/6",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "SALÓN PB",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "201 2° Piso",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "14",
+                        "FECHAS": "15/6 al 19/6",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "201 2° Piso",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "SALÓN PB",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "15",
+                        "FECHAS": "22/6 al 26/6",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                },
+                {
+                        "SEMANA": "16",
+                        "FECHAS": "29/6 al 3/7",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                }
+        ],
+        "professors": {
+                "TSAS 1C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Técnicas de Programación"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Administración de Base de Datos"
+                                },
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Técnicas de Programación"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Pillón",
+                                        "Materia": "Elementos de Análisis Matemático"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Ziccardi",
+                                        "Materia": "Lógica Computacional"
+                                }
+                        ]
+                },
+                "TSAS 2C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Tirado",
+                                        "Materia": "PP1 Aproximación al Campo Laboral"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Celi",
+                                        "Materia": "Inglés"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "A definir",
+                                        "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Reynoso",
+                                        "Materia": "Estadística y Probabilidad para el Análisis de Sistemas"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Escobar",
+                                        "Materia": "Modelado y Diseño de Software"
+                                }
+                        ]
+                },
+                "TSAS 3C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Análisis de Sistemas"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Perez",
+                                        "Materia": "Diseño e Implementación de Pruebas de Software"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Marchetti",
+                                        "Materia": "PP2 Relevamiento de Requerimientos de Usuario"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Conti",
+                                        "Materia": "Ingeniería de Software"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Blasco",
+                                        "Materia": "Taller de Comunicación"
+                                }
+                        ]
+                },
+                "TSAS 4C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Litovisius",
+                                        "Materia": "PP3 Diseño de Arquitectura de Sistemas"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Muotri",
+                                        "Materia": "Gestión de Proyectos"
+                                },
+                                {
+                                        "Profesor": "Litovisius",
+                                        "Materia": "PP3 Diseño de Arquitectura de Sistemas"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "Redes y Ciberseguridad"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Straccia",
+                                        "Materia": "Trabajo, Tecnología y Sociedad"
+                                },
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "Redes y Ciberseguridad"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Fernandez",
+                                        "Materia": "Seminario de Actualización en Tecnologías Web"
+                                }
+                        ]
+                },
+                "TSAS 5C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Eckerdt",
+                                        "Materia": "Liderazgo y Gestión de Equipos"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Farioli",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Arroyo Díaz",
+                                        "Materia": "Aseguramiento de Calidad de los Sistemas"
+                                },
+                                {
+                                        "Profesor": "Farioli",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Rusatti",
+                                        "Materia": "Arquitectura de Sistemas en la Nube"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Sistemas de Gestión"
+                                }
+                        ]
+                },
+                "TSCDIA 1C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Presumido",
+                                        "Materia": "Lógica Computacional"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Marchetti",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Capara",
+                                        "Materia": "Técnicas de Programación"
+                                },
+                                {
+                                        "Profesor": "Marchetti",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Presumido",
+                                        "Materia": "Elementos de Análisis Matemático"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Capara",
+                                        "Materia": "Técnicas de Programación"
+                                }
+                        ]
+                },
+                "TSCDIA 2C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Blumenkranz",
+                                        "Materia": "PP1 Aproximación al Campo Laboral"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Reynoso",
+                                        "Materia": "Estadística y Probabilidad para la Gestión de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Ferrero",
+                                        "Materia": "Taller de Comunicación"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
+                                }
+                        ]
+                },
+                "TSCDIA 3C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Polcán",
+                                        "Materia": "Gestión de Proyectos"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "Ciencia de Datos"
+                                },
+                                {
+                                        "Profesor": "Fassio",
+                                        "Materia": "Procesamiento de Aprendizaje Automático"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Modelizado de Sistemas de IA"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Fassio",
+                                        "Materia": "Procesamiento de Aprendizaje Automático"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "Ciencia de Datos"
+                                }
+                        ]
+                },
+                "TSCDIA 4C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Pita",
+                                        "Materia": "PP3 Análisis y Exploración de Datos"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Pita",
+                                        "Materia": "Modelado y Minería de Datos"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Pita",
+                                        "Materia": "Modelado y Minería de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Escobar",
+                                        "Materia": "Técnicas de Procesamiento de Habla"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Bachoer",
+                                        "Materia": "Trabajo, Tecnología y Sociedad"
+                                },
+                                {
+                                        "Profesor": "Escobar",
+                                        "Materia": "Técnicas de Procesamiento de Habla"
+                                }
+                        ]
+                },
+                "TSCDIA 5C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Técnicas de Procesamiento Digital de Imágenes"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Técnicas de Procesamiento Digital de Imágenes"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "Seminario de Actualización"
+                                }
+                        ]
+                },
+                "TSDS 1C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Perez",
+                                        "Materia": "Técnicas de Programación"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Gonzalez",
+                                        "Materia": "Lógica Computacional"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Perez",
+                                        "Materia": "Técnicas de Programación"
+                                },
+                                {
+                                        "Profesor": "Odstrcil",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Odstrcil",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Reynoso",
+                                        "Materia": "Elementos de Análisis Matemático"
+                                }
+                        ]
+                },
+                "TSDS 2C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Cefail",
+                                        "Materia": "Inglés"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Murua",
+                                        "Materia": "Estadística y Probabilidad para el Desarrollo de Software"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Romitelli",
+                                        "Materia": "PP1 Aproximación al Campo Laboral"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "A definir",
+                                        "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "A definir",
+                                        "Materia": "Modelado y Diseño de Software"
+                                },
+                                {
+                                        "Profesor": "A definir",
+                                        "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+                                }
+                        ]
+                },
+                "TSDS 3C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "PP2 Desarrollo de Sistemas de Información Orientados a la Gestión y Apoyo a las Decisiones"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Peña",
+                                        "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Peña",
+                                        "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
+                                },
+                                {
+                                        "Profesor": "Perez",
+                                        "Materia": "Metodología de Prueba de Sistemas"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "Tecnologías de la Información y de la Comunicación"
+                                },
+                                {
+                                        "Profesor": "Ferraro",
+                                        "Materia": "Taller de Comunicación"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Perez",
+                                        "Materia": "Metodología de Prueba de Sistemas"
+                                }
+                        ]
+                },
+                "TSDS 4C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Ingeniería de Software"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Desarrollo de Sistemas Web (Back End)"
+                                },
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Ingeniería de Software"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "A definir",
+                                        "Materia": "Desarrollo de Sistemas Web (Front End)"
+                                },
+                                {
+                                        "Profesor": "Uñates",
+                                        "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Uñates",
+                                        "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Desarrollo de Sistemas Web (Back End)"
+                                }
+                        ]
+                },
+                "TSDS 5C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Campagna",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Rusatti",
+                                        "Materia": "Programación Sobre Redes"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Cuñarro",
+                                        "Materia": "Trabajo, Tecnología y Sociedad"
+                                },
+                                {
+                                        "Profesor": "Fassio",
+                                        "Materia": "Seminario de Actualización"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Polcán",
+                                        "Materia": "Gestión de Proyectos"
+                                }
+                        ],
+                        "Viernes": []
+                }
         }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Administración de Base de Datos"
-        },
-        {
-          "Profesor": "Bonini",
-          "Materia": "Técnicas de Programación"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Administración de Base de Datos"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Pillón",
-          "Materia": "Elementos de Análisis Matemático"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Ziccardi",
-          "Materia": "Lógica Computacional"
-        }
-      ]
-    },
-    "TSAS 2C": {
-      "Lunes": [
-        {
-          "Profesor": "Tirado",
-          "Materia": "PP1 Aproximación al Campo Laboral"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Celi",
-          "Materia": "Inglés"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "A definir",
-          "Materia": "Desarrollo de Sistemas Orientado a Objetos"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Reynoso",
-          "Materia": "Estadística y Probabilidad para el Análisis de Sistemas"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Escobar",
-          "Materia": "Modelado y Diseño de Software"
-        }
-      ]
-    },
-    "TSAS 3C": {
-      "Lunes": [
-        {
-          "Profesor": "León",
-          "Materia": "Análisis de Sistemas"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Perez",
-          "Materia": "Diseño e Implementación de Pruebas de Software"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Marchetti",
-          "Materia": "PP2 Relevamiento de Requerimientos de Usuario"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Conti",
-          "Materia": "Ingeniería de Software"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Blasco",
-          "Materia": "Taller de Comunicación"
-        }
-      ]
-    },
-    "TSAS 4C": {
-      "Lunes": [
-        {
-          "Profesor": "Litovisius",
-          "Materia": "PP3 Diseño de Arquitectura de Sistemas"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Muotri",
-          "Materia": "Gestión de Proyectos"
-        },
-        {
-          "Profesor": "Litovisius",
-          "Materia": "PP3 Diseño de Arquitectura de Sistemas"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Santoro",
-          "Materia": "Redes y Ciberseguridad"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Straccia",
-          "Materia": "Trabajo, Tecnología y Sociedad"
-        },
-        {
-          "Profesor": "Santoro",
-          "Materia": "Redes y Ciberseguridad"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Fernandez",
-          "Materia": "Seminario de Actualización en Tecnologías Web"
-        }
-      ]
-    },
-    "TSAS 5C": {
-      "Lunes": [
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Liderazgo y Gestión de Equipos"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Farioli",
-          "Materia": "PP4 Proyecto Integrador"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Arroyo Díaz",
-          "Materia": "Aseguramiento de Calidad de los Sistemas"
-        },
-        {
-          "Profesor": "Farioli",
-          "Materia": "PP4 Proyecto Integrador"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Rusatti",
-          "Materia": "Arquitectura de Sistemas en la Nube"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Sistemas de Gestión"
-        }
-      ]
-    },
-    "TSCDIA 1C": {
-      "Lunes": [
-        {
-          "Profesor": "Presumido",
-          "Materia": "Lógica Computacional"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Marchetti",
-          "Materia": "Administración de Base de Datos"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Capara",
-          "Materia": "Técnicas de Programación"
-        },
-        {
-          "Profesor": "Marchetti",
-          "Materia": "Administración de Base de Datos"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Presumido",
-          "Materia": "Elementos de Análisis Matemático"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Capara",
-          "Materia": "Técnicas de Programación"
-        }
-      ]
-    },
-    "TSCDIA 2C": {
-      "Lunes": [
-        {
-          "Profesor": "Blumenkranz",
-          "Materia": "PP1 Aproximación al Campo Laboral"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "León",
-          "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Reynoso",
-          "Materia": "Estadística y Probabilidad para la Gestión de Datos"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Ferrero",
-          "Materia": "Taller de Comunicación"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "León",
-          "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
-        }
-      ]
-    },
-    "TSCDIA 3C": {
-      "Lunes": [
-        {
-          "Profesor": "Polcán",
-          "Materia": "Gestión de Proyectos"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Planiscig",
-          "Materia": "Ciencia de Datos"
-        },
-        {
-          "Profesor": "Fassio",
-          "Materia": "Procesamiento de Aprendizaje Automático"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "León",
-          "Materia": "Modelizado de Sistemas de IA"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Fassio",
-          "Materia": "Procesamiento de Aprendizaje Automático"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Planiscig",
-          "Materia": "Ciencia de Datos"
-        }
-      ]
-    },
-    "TSCDIA 4C": {
-      "Lunes": [
-        {
-          "Profesor": "Pita",
-          "Materia": "PP3 Análisis y Exploración de Datos"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Pita",
-          "Materia": "Modelado y Minería de Datos"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Pita",
-          "Materia": "Modelado y Minería de Datos"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Escobar",
-          "Materia": "Técnicas de Procesamiento de Habla"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Bachoer",
-          "Materia": "Trabajo, Tecnología y Sociedad"
-        },
-        {
-          "Profesor": "Escobar",
-          "Materia": "Técnicas de Procesamiento de Habla"
-        }
-      ]
-    },
-    "TSCDIA 5C": {
-      "Lunes": [
-        {
-          "Profesor": "Planiscig",
-          "Materia": "PP4 Proyecto Integrador"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Planiscig",
-          "Materia": "PP4 Proyecto Integrador"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Bonini",
-          "Materia": "Técnicas de Procesamiento Digital de Imágenes"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Bonini",
-          "Materia": "Técnicas de Procesamiento Digital de Imágenes"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Planiscig",
-          "Materia": "Seminario de Actualización"
-        }
-      ]
-    },
-    "TSDS 1C": {
-      "Lunes": [
-        {
-          "Profesor": "Perez",
-          "Materia": "Técnicas de Programación"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Gonzalez",
-          "Materia": "Lógica Computacional"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Perez",
-          "Materia": "Técnicas de Programación"
-        },
-        {
-          "Profesor": "Odstrcil",
-          "Materia": "Administración de Base de Datos"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Odstrcil",
-          "Materia": "Administración de Base de Datos"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Reynoso",
-          "Materia": "Elementos de Análisis Matemático"
-        }
-      ]
-    },
-    "TSDS 2C": {
-      "Lunes": [
-        {
-          "Profesor": "Cefail",
-          "Materia": "Inglés"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Murua",
-          "Materia": "Estadística y Probabilidad para el Desarrollo de Software"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Romitelli",
-          "Materia": "PP1 Aproximación al Campo Laboral"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Iberti",
-          "Materia": "Desarrollo de Sistemas Orientado a Objetos"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Iberti",
-          "Materia": "Modelado y Diseño de Software"
-        },
-        {
-          "Profesor": "Iberti",
-          "Materia": "Desarrollo de Sistemas Orientado a Objetos"
-        }
-      ]
-    },
-    "TSDS 3C": {
-      "Lunes": [
-        {
-          "Profesor": "Santoro",
-          "Materia": "PP2 Desarrollo de Sistemas de Información Orientados a la Gestión y Apoyo a las Decisiones"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Peña",
-          "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Peña",
-          "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
-        },
-        {
-          "Profesor": "Perez",
-          "Materia": "Metodología de Prueba de Sistemas"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Santoro",
-          "Materia": "Tecnologías de la Información y de la Comunicación"
-        },
-        {
-          "Profesor": "Ferraro",
-          "Materia": "Taller de Comunicación"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Perez",
-          "Materia": "Metodología de Prueba de Sistemas"
-        }
-      ]
-    },
-    "TSDS 4C": {
-      "Lunes": [
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Ingeniería de Software"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Bonini",
-          "Materia": "Desarrollo de Sistemas Web (Back End)"
-        },
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Ingeniería de Software"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "A definir",
-          "Materia": "Desarrollo de Sistemas Web (Front End)"
-        },
-        {
-          "Profesor": "Uñates",
-          "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Uñates",
-          "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
-        }
-      ],
-      "Viernes": [
-        {
-          "Profesor": "Bonini",
-          "Materia": "Desarrollo de Sistemas Web (Back End)"
-        }
-      ]
-    },
-    "TSDS 5C": {
-      "Lunes": [
-        {
-          "Profesor": "Campagna",
-          "Materia": "PP4 Proyecto Integrador"
-        }
-      ],
-      "Martes": [
-        {
-          "Profesor": "Rusatti",
-          "Materia": "Programación Sobre Redes"
-        }
-      ],
-      "Miércoles": [
-        {
-          "Profesor": "Cuñarro",
-          "Materia": "Trabajo, Tecnología y Sociedad"
-        },
-        {
-          "Profesor": "Fassio",
-          "Materia": "Seminario de Actualización"
-        }
-      ],
-      "Jueves": [
-        {
-          "Profesor": "Polcán",
-          "Materia": "Gestión de Proyectos"
-        }
-      ],
-      "Viernes": []
-    }
-  }
 };
         const schedule = DB.schedule;
         const professors = DB.professors;
@@ -963,7 +951,6 @@
         const inputSearch = document.getElementById('s-profesor');
         const container = document.getElementById('results');
         const summary = document.getElementById('filtersSummary');
-        let selectedDay = null;
 
         function isPresencial(value) {
             if (!value) return false;
@@ -1012,12 +999,12 @@
         function renderResults() {
             const searchStr = inputSearch.value.trim().toLowerCase();
             
-            if (!searchStr && !selectedDay) {
+            if (!searchStr) {
                 summary.innerHTML = '';
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1;">
                         <i class="fas fa-keyboard"></i>
-                        Ingresa un nombre o apellido, o selecciona un día para comenzar.
+                        Ingresa un nombre de profesor para visualizar el cronograma presencial.
                     </div>
                 `;
                 return;
@@ -1027,13 +1014,9 @@
             let foundNames = new Set();
             
             allComisiones.forEach(com => {
-                const daysToCheck = selectedDay ? [selectedDay] : Object.keys(professors[com]);
-                
-                daysToCheck.forEach(dia => {
-                    const clases = professors[com][dia] || [];
+                Object.entries(professors[com]).forEach(([dia, clases]) => {
                     clases.forEach(c => {
-                        const matchName = !searchStr || c.Profesor.toLowerCase().includes(searchStr);
-                        if (matchName) {
+                        if (c.Profesor.toLowerCase().includes(searchStr)) {
                             foundNames.add(c.Profesor);
                             teacherClasses.push({
                                 profesor: c.Profesor,
@@ -1048,11 +1031,10 @@
 
             if (teacherClasses.length === 0) {
                 summary.innerHTML = '';
-                const criteria = selectedDay ? (searchStr ? `"${searchStr}" para el día ${selectedDay}` : `el día ${selectedDay}`) : `"${searchStr}"`;
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1; color: var(--danger)">
                         <i class="fas fa-search-minus" style="color: var(--danger)"></i>
-                        No se encontró ningún resultado que coincida con ${criteria}.
+                        No se encontró ningún resultado que coincida con "${searchStr}".
                     </div>
                 `;
                 return;
@@ -1070,7 +1052,7 @@
                             semana: parseInt(week.SEMANA), 
                             semanaStr: week.SEMANA,
                             fechas: week.FECHAS,
-                            exactDate: dateDetails.full,
+                            exactDate: dateDetails.short,
                             isHoliday: dateDetails.isHoliday,
                             aula: value
                         });
@@ -1093,34 +1075,32 @@
             presencialAssignments.sort((a, b) => a.semana - b.semana);
 
             const namesDisp = Array.from(foundNames).join(" | ");
-            const filterTitle = selectedDay ? (searchStr ? `<strong>${namesDisp}</strong> el día <strong>${selectedDay}</strong>` : `Clases del día <strong>${selectedDay}</strong>`) : `<strong>${namesDisp}</strong>`;
-            
             summary.innerHTML = `
-                <div><i class="fas fa-calendar-check"></i> Mostrando clases presenciales para: ${filterTitle}</div>
+                <div><i class="fas fa-calendar-check"></i> Mostrando clases presenciales para: <strong>${namesDisp}</strong></div>
                 <button class="download-btn" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> Guardar como PDF</button>
             `;
 
             let html = '';
             presencialAssignments.forEach((item, index) => {
                 html += `
-                    <div class="card" style="animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-delay: ${Math.min(index * 0.05, 1)}s; background: #ffffff; border: 1px solid #e2e8f0;">
-                        <div class="card-header" style="border-bottom: 1px solid #e2e8f0;">
-                            <span style="font-weight:700; color:#0f172a"><i class="fas fa-users" style="color:#64748b"></i> ${item.comision}</span>
+                    <div class="card" style="animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-delay: ${Math.min(index * 0.05, 1)}s;">
+                        <div class="card-header">
+                            <span><i class="fas fa-users"></i> ${item.comision}</span>
                             <span class="badge"><i class="fas fa-school"></i> Semana ${item.semanaStr}</span>
                         </div>
-                        <div class="card-title" style="color: #0f172a;">${item.materia}</div>
+                        <div class="card-title">${item.materia}</div>
                         
-                        <div class="detail-row" style="color: #6366f1; font-weight: 600;">
-                            <i class="fas fa-calendar-day" style="color: #2563eb;"></i> ${item.exactDate} (${item.fechas})
+                        <div class="detail-row">
+                            <i class="fas fa-calendar-day"></i> ${item.dia} ${item.exactDate} (${item.fechas})
                         </div>
                         
-                        <div class="detail-row" style="color: #0f172a;">
-                            <i class="fas fa-map-marker-alt" style="color: #2563eb;"></i> 
-                            <span style="font-weight:500;">Aula: ${item.isHoliday ? '<strong style="color: #ef4444; text-transform: uppercase;">Feriado</strong>' : item.aula}</span>
+                        <div class="detail-row">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            <span>Aula: ${item.isHoliday ? '<strong style="color: var(--danger); text-transform: uppercase;">Feriado</strong>' : item.aula}</span>
                         </div>
                         
-                        <div class="detail-row" style="font-size:0.95rem; color:#64748b; margin-top: 1rem; border-top: 1px solid #e2e8f0; padding-top: 0.75rem;">
-                            <i class="fas fa-user-tie" style="color: #2563eb;"></i> ${item.profesor}
+                        <div class="detail-row" style="font-size:0.95rem; color:var(--text-muted); margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                            <i class="fas fa-user-tie"></i> ${item.profesor}
                         </div>
                     </div>
                 `;
@@ -1133,12 +1113,11 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             
-            const profName = document.getElementById('s-profesor').value.trim();
-            const titlePrefix = selectedDay ? (profName ? `${profName.toUpperCase()} - ${selectedDay.toUpperCase()}` : selectedDay.toUpperCase()) : profName.toUpperCase();
+            const profName = inputSearch.value.trim();
             
             pdf.setFontSize(16);
             pdf.setFont("helvetica", "bold");
-            pdf.text(`Cronograma Presencial - ${titlePrefix}`, 14, 20);
+            pdf.text(`Cronograma Presencial - ${profName.toUpperCase()}`, 14, 20);
             
             pdf.setFontSize(11);
             pdf.setFont("helvetica", "normal");
@@ -1192,21 +1171,6 @@
         }
 
         inputSearch.addEventListener('input', renderResults);
-
-        document.querySelectorAll('.day-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const day = btn.getAttribute('data-day');
-                if (selectedDay === day) {
-                    selectedDay = null;
-                    btn.classList.remove('active');
-                } else {
-                    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-                    selectedDay = day;
-                    btn.classList.add('active');
-                }
-                renderResults();
-            });
-        });
     </script>
 </body>
 </html>
