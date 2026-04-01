@@ -1043,9 +1043,11 @@
             let presencialAssignments = [];
             
             teacherClasses.forEach(tc => {
+                let hasPresencial = false;
                 schedule.forEach(week => {
                     const value = week[tc.comision];
                     if (isPresencial(value)) {
+                        hasPresencial = true;
                         const dateDetails = getExactDate(tc.dia, week.FECHAS);
                         presencialAssignments.push({
                             ...tc,
@@ -1058,6 +1060,19 @@
                         });
                     }
                 });
+
+                if (!hasPresencial) {
+                    presencialAssignments.push({
+                        ...tc,
+                        semana: 999, 
+                        semanaStr: "-",
+                        fechas: "Cursada habitual",
+                        exactDate: tc.dia,
+                        isHoliday: false,
+                        aula: "Modalidad Virtual / Disp. Docente",
+                        isVirtual: true
+                    });
+                }
             });
 
             if (presencialAssignments.length === 0) {
@@ -1076,17 +1091,18 @@
 
             const namesDisp = Array.from(foundNames).join(" | ");
             summary.innerHTML = `
-                <div><i class="fas fa-calendar-check"></i> Mostrando clases presenciales para: <strong>${namesDisp}</strong></div>
+                <div><i class="fas fa-calendar-check"></i> Mostrando clases para: <strong>${namesDisp}</strong></div>
                 <button class="download-btn" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> Guardar como PDF</button>
             `;
 
             let html = '';
             presencialAssignments.forEach((item, index) => {
+                const isVirtualBadge = item.isVirtual ? 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;' : '';
                 html += `
-                    <div class="card" style="animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-delay: ${Math.min(index * 0.05, 1)}s;">
+                    <div class="card" style="animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-delay: ${Math.min(index * 0.05, 1)}s; ${item.isVirtual ? 'border-left-color: #94a3b8;' : ''}">
                         <div class="card-header">
                             <span><i class="fas fa-users"></i> ${item.comision}</span>
-                            <span class="badge"><i class="fas fa-school"></i> Semana ${item.semanaStr}</span>
+                            <span class="badge" style="${isVirtualBadge}"><i class="fas ${item.isVirtual ? 'fa-laptop-house' : 'fa-school'}"></i> ${item.isVirtual ? 'Virtual' : 'Semana ' + item.semanaStr}</span>
                         </div>
                         <div class="card-title">${item.materia}</div>
                         
