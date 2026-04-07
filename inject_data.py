@@ -19,8 +19,9 @@ db_js = f"const DB = {json.dumps(data, indent=8, ensure_ascii=False)};"
 
 # Find the DB block and replace it
 import re
-pattern = r"const DB = \{.*?\};"
-new_html = re.sub(pattern, db_js, html_content, flags=re.DOTALL)
+# We know the object starts with `const DB = {` and ends before `        const schedule = DB.schedule;`
+pattern = r"const DB = \{\s*\"schedule\"[\s\S]*?\};\n\s*const schedule = DB\.schedule;"
+new_html = re.sub(pattern, db_js + "\n        const schedule = DB.schedule;", html_content)
 
 if new_html != html_content:
     with open(html_path, "w", encoding="utf-8") as f:
