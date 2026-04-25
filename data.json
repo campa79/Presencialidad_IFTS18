@@ -564,7 +564,7 @@
         },
         {
           "Profesor": "Planiscig",
-          "Materia": "Procesamiento de Aprendizaje Automático"
+          "Materia": "Seminario de Actualización"
         }
       ],
       "Miércoles": [
@@ -650,7 +650,7 @@
       "Viernes": [
         {
           "Profesor": "Planiscig",
-          "Materia": "Seminario de Actualización"
+          "Materia": "Ciencia de Datos"
         }
       ]
     },
