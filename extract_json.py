@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import math
 
-file_path = r"c:\Users\Campa\Downloads\Presencialidad 1C 2026\Presencialidad 1C 2026.xlsx"
+file_path = r"c:\Users\Campa\Downloads\Presencialidad 1C 2026\Presencialidad 2C 2026.xlsx"
 df = pd.read_excel(file_path, sheet_name=0, header=None)
 
 # Table 1: Weeks and Rooms
