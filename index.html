@@ -1196,6 +1196,14 @@
                     if (isPresencial(value)) {
                         hasPresencial = true;
                         const dateDetails = getExactDate(tc.dia, week.FECHAS);
+                        
+                        let displayAula = value;
+                        let isCancelled = false;
+                        if (week.SEMANA === "1" && tc.comision === "TSAS 1C" && (tc.dia === "Lunes" || tc.dia === "Martes")) {
+                            displayAula = "No hay clases";
+                            isCancelled = true;
+                        }
+
                         presencialAssignments.push({
                             ...tc,
                             semana: parseInt(week.SEMANA), 
@@ -1203,7 +1211,8 @@
                             fechas: week.FECHAS,
                             exactDate: dateDetails.full,
                             isHoliday: dateDetails.isHoliday,
-                            aula: value
+                            isCancelled: isCancelled,
+                            aula: displayAula
                         });
                     }
                 });
@@ -1259,7 +1268,7 @@
                         
                         <div class="detail-row">
                             <i class="fas fa-map-marker-alt"></i> 
-                            <span>Aula: ${item.isHoliday ? '<strong style="color: var(--danger); text-transform: uppercase;">Feriado</strong>' : item.aula}</span>
+                            <span>Aula: ${item.isHoliday ? '<strong style="color: var(--danger); text-transform: uppercase;">Feriado</strong>' : (item.isCancelled ? '<strong style="color: var(--danger);">' + item.aula + '</strong>' : item.aula)}</span>
                         </div>
                         
                         <div class="detail-row" style="font-size:0.95rem; color:var(--text-muted); margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
