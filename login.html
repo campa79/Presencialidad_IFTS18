@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Presencialidad por Profesor/a</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --primary: #073763;
+            --primary-hover: #052441;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #479dff;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            animation: fadeIn 0.8s ease-out;
+            padding: 2rem 1rem;
+            flex: 1;
+            transition: max-width 0.3s;
+        }
+        #adminPanel {
+            max-width: 98%;
+        }
+        .container.full-width {
+            max-width: 100% !important;
+            padding: 2rem 0 !important;
+        }
+        header { text-align: center; padding: 3rem 2rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        h1 { font-size: 2.1rem; background: linear-gradient(to right, #073763, #479dff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+        
+        .search-container { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .search-container label { font-size: 1rem; color: var(--text-main); font-weight: 600; }
+        .input-wrapper { position: relative; width: 100%; }
+        .input-wrapper i { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem; }
+        input { width: 100%; background: #f1f5f9; border: 2px solid #cbd5e1; color: var(--text-main); padding: 1rem 1rem 1rem 3.5rem; border-radius: 12px; font-size: 1.2rem; outline: none; transition: all 0.3s; font-family: inherit; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(71, 157, 255, 0.2); background: #ffffff; }
+        
+        .filters-summary { font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; font-weight: 500; text-align: center; }
+        
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; border-left: 5px solid var(--success); box-shadow: var(--shadow); }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem; }
+        .badge { background: #d1fae5; color: #047857; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .detail-row { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; font-size: 1.05rem; color: var(--text-main); }
+        .detail-row i { color: var(--primary); width: 20px; text-align: center; }
+        
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); font-size: 1.2rem; }
+        .empty-state i { font-size: 4rem; opacity: 0.4; margin-bottom: 1.5rem; display: block; }
+        
+        .download-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: #ef4444; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 1rem; outline: none; }
+        .download-btn:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+ 
+        .export-mode { background: #ffffff !important; padding: 2rem; }
+        .export-mode .filters-summary { color: #000000 !important; }
+        .export-mode .card { box-shadow: none !important; border: 2px solid #000000 !important; background: #ffffff !important; }
+        .export-mode .card * { color: #000000 !important; }
+        .export-mode .card i { color: #000000 !important; }
+        .export-mode .badge { border: 1px solid #000000 !important; background: transparent !important; color: #000000 !important; }
+        .export-mode .detail-row { border-color: #000000 !important; }
+ 
+        /* Navigation Bar */
+        .nav-bar {
+            background-color: var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .nav-logo i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .nav-menu a {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .nav-menu a:hover {
+            color: #ffffff;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 3rem 1rem 1.5rem;
+            margin-top: auto;
+            border-top: 4px solid var(--accent);
+        }
+        .footer-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .footer-section h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+        .footer-section p, .footer-section ul {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .footer-section ul li a:hover {
+            color: #ffffff;
+        }
+        .footer-bottom {
+            max-width: 1000px;
+            margin: 0 auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+        .admin-main-wrapper {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: padding 0.3s;
+        }
+        
+        .admin-main-wrapper.matrix-mode {
+            padding: 1rem 0; /* Matrix needs full width */
+            border: none;
+            box-shadow: none;
+            background: transparent;
+        }
+
+        .admin-tabs {
+            display: inline-flex;
+            gap: 0.5rem;
+            background: #e2e8f0;
+            padding: 0.35rem;
+            border-radius: 99px;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+        .admin-tabs::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+        .admin-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-radius: 99px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            font-size: 0.95rem;
+        }
+        .admin-tab:hover {
+            color: var(--text-main);
+        }
+        .admin-tab.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .admin-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        .admin-section.active {
+            display: block;
+        }
+        .admin-table-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            min-width: 600px;
+        }
+        .admin-table th, .admin-table td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+        .admin-table tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+        .admin-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .admin-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-main);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            margin-right: 0.25rem;
+        }
+        .action-btn.edit { color: var(--primary); background: #e0f2fe; }
+        .action-btn.edit:hover { background: #bae6fd; transform: translateY(-2px); }
+        .action-btn.delete { color: #e11d48; background: #ffe4e6; }
+        .action-btn.delete:hover { background: #fecdd3; transform: translateY(-2px); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .modal-form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .modal-form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .modal-form-group input, .modal-form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+    
+        .matrix-table {
+            width: max-content;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .matrix-table th, .matrix-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            vertical-align: top;
+            min-width: 150px;
+            max-width: 250px;
+        }
+        .matrix-table th {
+            background: var(--light-bg);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .matrix-table th:first-child, .matrix-table td:first-child {
+            position: sticky;
+            left: 0;
+            background: var(--light-bg);
+            z-index: 20;
+            font-weight: bold;
+        }
+        .matrix-cell-virtual {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            text-align: center;
+            vertical-align: middle !important;
+            font-style: italic;
+        }
+        .matrix-cell-presencial {
+            background-color: #e8f4fd;
+            border-left: 3px solid var(--primary) !important;
+        }
+        .matrix-aula {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: block;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 0.2rem;
+        }
+        .matrix-prof-list {
+            margin: 0;
+            padding-left: 1rem;
+        }
+        .matrix-prof-list li {
+            margin-bottom: 0.2rem;
+            color: var(--text-color);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header/Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="https://www.ifts18.edu.ar/" class="nav-logo" target="_blank">
+                <i class="fas fa-university"></i>
+                <span>IFTS N°18</span>
+            </a>
+            <div class="nav-menu">
+                <a href="https://www.ifts18.edu.ar/" target="_blank"><i class="fas fa-home"></i> Inicio</a>
+                <a href="https://www.ifts18.edu.ar/carreras" target="_blank"><i class="fas fa-graduation-cap"></i> Carreras</a>
+                <a href="https://www.ifts18.edu.ar/alumnos" target="_blank"><i class="fas fa-user-graduate"></i> Alumnos</a>
+                <a href="https://www.ifts18.edu.ar/" target="_blank"><i class="fas fa-book"></i> Académico</a>
+                <a href="https://guarani-autogestionagencia.bue.edu.ar/" target="_blank"><i class="fas fa-id-card"></i> SIU Guaraní</a>
+                <a href="https://www.ifts18.edu.ar/docentes" target="_blank"><i class="fas fa-chalkboard-teacher"></i> Docentes</a>
+            </div>
+        </div>
+    </nav>
+
+    
+
+    <!-- Admin Login Modal -->
+    <div id="adminModal" style="display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: var(--shadow);">
+            <h2 style="margin-bottom: 1rem;"><i class="fas fa-lock"></i> Acceso Admin</h2>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Usuario</label>
+                <input type="text" id="adminUser" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Contraseña</label>
+                <input type="password" id="adminPass" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            </div>
+            <div style="color: var(--danger); margin-bottom: 1rem; font-size: 0.9rem; display: none;" id="adminError">Credenciales incorrectas</div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button onclick="closeAdminLogin()" style="background: transparent; color: var(--text-muted); border: none; cursor: pointer; padding: 0.5rem 1rem; font-weight: 600;">Cancelar</button>
+                <button onclick="doAdminLogin()" class="download-btn" style="margin: 0; background: var(--primary);">Ingresar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="container" id="adminPanel" style="display: none;">
+        <header>
+            <i class="fas fa-user-shield" style="font-size: 3rem; color: var(--accent); margin-bottom: 1rem; display: block;"></i>
+            <h1>Panel de Administración</h1>
+            <p style="color:var(--text-muted); font-size: 1.1rem; margin-top: 0.5rem;"></p>
+        </header>
+        <main style="text-align: center;">
+            <div id="adminMainWrapper" class="admin-main-wrapper">
+                <div class="admin-tabs">
+                <div class="admin-tab active" onclick="switchAdminTab('tab-professors')">Profesores y Materias</div>
+                <div class="admin-tab" onclick="switchAdminTab('tab-schedule')">Cronograma (Aulas)</div>
+                <div class="admin-tab" onclick="switchAdminTab('tab-excel')">Carga Masiva</div>
+                <div class="admin-tab" onclick="switchAdminTab('tab-matrix')">Matriz General</div>
+                <div class="admin-tab" onclick="switchAdminTab('tab-stats')">Estadísticas</div>
+            </div>
+
+            <!-- Tab Estadisticas -->
+            <div id="tab-stats" class="admin-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Estadísticas de Visitas</h2>
+                    <button class="download-btn" onclick="renderAdminStats()" style="margin:0; background: var(--secondary);"><i class="fas fa-sync"></i> Refrescar</button>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Hoy</h3>
+                        <div class="stat-value" id="statToday">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Esta Semana</h3>
+                        <div class="stat-value" id="statWeek">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Este Mes</h3>
+                        <div class="stat-value" id="statMonth">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Histórico Total</h3>
+                        <div class="stat-value" id="statAllTime">0</div>
+                    </div>
+                </div>
+
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>IP</th>
+                                <th>Ubicación</th>
+                                <th>Navegador / OS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStatsBody">
+                            <tr>
+                                <td colspan="4" style="text-align:center;">Cargando estadísticas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <!-- Tab Profesores -->
+            <div id="tab-professors" class="admin-section active">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Gestión de Profesores y Materias</h2>
+                    <button class="download-btn" onclick="openProfessorModal()" style="margin:0;"><i class="fas fa-plus"></i> Nueva Clase</button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Profesor</th>
+                                <th>Materia</th>
+                                <th>Comisión</th>
+                                <th>Día</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminProfessorsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Cronograma -->
+            <div id="tab-schedule" class="admin-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Gestión de Cronograma</h2>
+                    <button class="download-btn" onclick="openScheduleModal()" style="margin:0;"><i class="fas fa-plus"></i> Nueva Semana</button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Semana</th>
+                                <th>Fechas</th>
+                                <th>Aulas Asignadas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminScheduleBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+            <!-- Tab Matriz -->
+            <div id="tab-matrix" class="admin-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Matriz General de Presencialidad</h2>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Cruce completo de Semanas vs Comisiones y Profesores afectados.</p>
+                </div>
+                <div class="admin-table-container" style="max-height: 70vh; overflow: auto; position: relative;">
+                    <table class="matrix-table">
+                        <thead id="adminMatrixHead">
+                        </thead>
+                        <tbody id="adminMatrixBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab Excel -->
+            <div id="tab-excel" class="admin-section">
+                <div style="background: var(--card-bg); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: var(--shadow);">
+                    <h2 style="margin-bottom: 1rem;"><i class="fas fa-file-excel" style="color: #217346;"></i> Carga Masiva (Excel)</h2>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">Sube el archivo Excel de presencialidad para actualizar la base de datos en tiempo real.</p>
+                    <input type="file" id="excelUpload" accept=".xlsx, .xls" style="margin-bottom: 1rem;">
+                    <br>
+                    <button class="download-btn" onclick="document.getElementById('excelUpload').click()" style="background: #217346;"><i class="fas fa-upload"></i> Seleccionar y Subir Excel</button>
+                </div>
+            </div>
+            
+            <button class="download-btn" onclick="logoutAdmin()" style="background: var(--danger);"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+
+        </main>
+    </div>
+
+    
+    <!-- Modals CRUD -->
+    <div id="crudModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto;">
+            <h2 id="crudModalTitle" style="margin-bottom: 1rem;">Editar</h2>
+            <div id="crudModalBody"></div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+                <button onclick="closeCrudModal()" style="background: transparent; color: var(--text-muted); border: none; cursor: pointer; padding: 0.5rem 1rem; font-weight: 600;">Cancelar</button>
+                <button onclick="saveCrudForm()" class="download-btn" style="margin: 0; background: var(--primary);">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Institutional Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p style="margin-top: 0.5rem;"><i class="fas fa-envelope"></i> <a href="mailto:alumnos@ifts18.edu.ar">alumnos@ifts18.edu.ar</a></p>
+                <p style="margin-top: 0.5rem;"><i class="fas fa-phone"></i> Tel: 4823-2477</p>
+                <p style="margin-top: 0.5rem;"><i class="fas fa-map-marker-alt"></i> CABA, Argentina</p>
+            </div>
+            <div class="footer-section">
+                <h3>Recursos Útiles</h3>
+                <ul>
+                    <li><a href="https://www.ifts18.edu.ar/cooperadora" target="_blank"><i class="fas fa-chevron-right"></i> Cooperadora</a></li>
+                    <li><a href="https://www.ifts18.edu.ar/" target="_blank"><i class="fas fa-chevron-right"></i> Reglamento Orgánico</a></li>
+                    <li><a href="https://www.ifts18.edu.ar/alumnos/certificados" target="_blank"><i class="fas fa-chevron-right"></i> Certificados</a></li>
+                    <li><a href="https://www.ifts18.edu.ar/" target="_blank"><i class="fas fa-chevron-right"></i> Solicitud de Título</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Institucional</h3>
+                <p>El IFTS N°18 es un Instituto de Formación Técnica Superior público y gratuito del Gobierno de la Ciudad de Buenos Aires.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 IFTS N°18. Todos los derechos reservados. | Consulta de Presencialidad 2C 2026</p>
+        </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyBlYeqZuD9vIOb8INu-1UQjexF0iMj6RPA",
+          authDomain: "chrononote-1wdcs.firebaseapp.com",
+          projectId: "chrononote-1wdcs",
+          storageBucket: "chrononote-1wdcs.firebasestorage.app",
+          messagingSenderId: "780510215684",
+          appId: "1:780510215684:web:6b18cb274fc1078af3ff51"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const DB = {
+        "schedule": [
+                {
+                        "SEMANA": "1",
+                        "FECHAS": "10/8 al 14/8",
+                        "TSAS 1C": "SALÓN PB",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "201 2° Piso",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": "202 2° Piso"
+                },
+                {
+                        "SEMANA": "2",
+                        "FECHAS": "17/8 al 21/8",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "202 2° Piso",
+                        "TSDS 1C": "SALÓN PB",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "201 2° Piso",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "3",
+                        "FECHAS": "24/8 al 28/8",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "202 2° Piso",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "SALÓN PB",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "201 2° Piso",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "4",
+                        "FECHAS": "31/8 al 4/9",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "SALÓN PB",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "201 2° Piso",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "5",
+                        "FECHAS": "7/9 al 11/9",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "SALÓN PB",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "201 2° Piso",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "6",
+                        "FECHAS": "14/9 al 18/9",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "201 2° Piso",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "SALÓN PB",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "7",
+                        "FECHAS": "21/9 al 25/9",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                },
+                {
+                        "SEMANA": "8",
+                        "FECHAS": "28/9 al 2/10",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                },
+                {
+                        "SEMANA": "9",
+                        "FECHAS": "5/10 al 9/10",
+                        "TSAS 1C": "SALÓN PB",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "201 2° Piso",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": "202 2° Piso"
+                },
+                {
+                        "SEMANA": "10",
+                        "FECHAS": "12/10 al 16/10",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "202 2° Piso",
+                        "TSDS 1C": "SALÓN PB",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "201 2° Piso",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "11",
+                        "FECHAS": "19/10 al 23/10",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "202 2° Piso",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "SALÓN PB",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "201 2° Piso",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "12",
+                        "FECHAS": "26/10 al 30/10",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "SALÓN PB",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "201 2° Piso",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "13",
+                        "FECHAS": "2/11 al 6/11",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "SALÓN PB",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "201 2° Piso",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "14",
+                        "FECHAS": "9/11 al 13/11",
+                        "TSAS 1C": "",
+                        "TSAS 2C": "",
+                        "TSAS 3C": "201 2° Piso",
+                        "TSAS 4C": "",
+                        "TSAS 5C": "",
+                        "TSCDIA 1C": "",
+                        "TSCDIA 2C": "",
+                        "TSCDIA 3C": "",
+                        "TSCDIA 4C": "",
+                        "TSCDIA 5C": "",
+                        "TSDS 1C": "",
+                        "TSDS 2C": "SALÓN PB",
+                        "TSDS 3C": "",
+                        "TSDS 4C": "",
+                        "TSDS 5C": ""
+                },
+                {
+                        "SEMANA": "15",
+                        "FECHAS": "16/11 al 20/11",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                },
+                {
+                        "SEMANA": "16",
+                        "FECHAS": "23/11 al 27/11",
+                        "TSAS 1C": "Disp. Docente",
+                        "TSAS 2C": "Disp. Docente",
+                        "TSAS 3C": "Disp. Docente",
+                        "TSAS 4C": "Disp. Docente",
+                        "TSAS 5C": "Disp. Docente",
+                        "TSCDIA 1C": "Disp. Docente",
+                        "TSCDIA 2C": "Disp. Docente",
+                        "TSCDIA 3C": "Disp. Docente",
+                        "TSCDIA 4C": "Disp. Docente",
+                        "TSCDIA 5C": "Disp. Docente",
+                        "TSDS 1C": "Disp. Docente",
+                        "TSDS 2C": "Disp. Docente",
+                        "TSDS 3C": "Disp. Docente",
+                        "TSDS 4C": "Disp. Docente",
+                        "TSDS 5C": "Disp. Docente"
+                }
+        ],
+        "professors": {
+                "TSAS 1C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Técnicas de Programación"
+                                }
+                        ],
+                        "Martes": [],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Pillón",
+                                        "Materia": "Elementos de Análisis Matemático"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Ziccardi",
+                                        "Materia": "Lógica Computacional"
+                                }
+                        ]
+                },
+                "TSAS 2C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Tirado",
+                                        "Materia": "PP1 Aproximación al Campo Laboral"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Celi",
+                                        "Materia": "Inglés"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Villariño",
+                                        "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Reynoso",
+                                        "Materia": "Estadística y Probabilidad para el Análisis de Sistemas"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Escobar",
+                                        "Materia": "Modelado y Diseño de Software"
+                                }
+                        ]
+                },
+                "TSAS 3C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Análisis de Sistemas"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Perez",
+                                        "Materia": "Diseño e Implementación de Pruebas de Software"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Marchetti",
+                                        "Materia": "PP2 Relevamiento de Requerimientos de Usuario"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Conti",
+                                        "Materia": "Ingeniería de Software"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Blasco",
+                                        "Materia": "Taller de Comunicación"
+                                }
+                        ]
+                },
+                "TSAS 4C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Litovicius",
+                                        "Materia": "PP3 Diseño de Arquitectura de Sistemas"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Muotri",
+                                        "Materia": "Gestión de Proyectos"
+                                },
+                                {
+                                        "Profesor": "Litovicius",
+                                        "Materia": "PP3 Diseño de Arquitectura de Sistemas"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "Redes y Ciberseguridad"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Straccia",
+                                        "Materia": "Trabajo, Tecnología y Sociedad"
+                                },
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "Redes y Ciberseguridad"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Filippi Farmar",
+                                        "Materia": "Seminario de Actualización en Tecnologías Web"
+                                }
+                        ]
+                },
+                "TSAS 5C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Eckerdt",
+                                        "Materia": "Liderazgo y Gestión de Equipos"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Farioli",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Arroyo Díaz",
+                                        "Materia": "Aseguramiento de Calidad de los Sistemas"
+                                },
+                                {
+                                        "Profesor": "Farioli",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Rusatti",
+                                        "Materia": "Arquitectura de Sistemas en la Nube"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Sistemas de Gestión"
+                                }
+                        ]
+                },
+                "TSCDIA 1C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Presumido",
+                                        "Materia": "Lógica Computacional"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Marchetti",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Miércoles": [],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Presumido",
+                                        "Materia": "Elementos de Análisis Matemático"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Capara",
+                                        "Materia": "Técnicas de Programación"
+                                }
+                        ]
+                },
+                "TSCDIA 2C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Cendra",
+                                        "Materia": "PP1 Aproximación al Campo Laboral"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Reynoso",
+                                        "Materia": "Estadística y Probabilidad para la Gestión de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Ferrero",
+                                        "Materia": "Taller de Comunicación"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Desarrollo de Sistemas de Inteligencia Artificial"
+                                }
+                        ]
+                },
+                "TSCDIA 3C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Polcán",
+                                        "Materia": "Gestión de Proyectos"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "Ciencia de Datos"
+                                },
+                                {
+                                        "Profesor": "Villagra",
+                                        "Materia": "Seminario de Actualización"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "León",
+                                        "Materia": "Modelizado de Sistemas de IA"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Fassio",
+                                        "Materia": "Procesamiento de Aprendizaje Automático"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "Ciencia de Datos"
+                                }
+                        ]
+                },
+                "TSCDIA 4C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Pita",
+                                        "Materia": "PP3 Análisis y Exploración de Datos"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Pita",
+                                        "Materia": "Modelado y Minería de Datos"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Pita",
+                                        "Materia": "Modelado y Minería de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Escobar",
+                                        "Materia": "Técnicas de Procesamiento de Habla"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Bachoer",
+                                        "Materia": "Trabajo, Tecnología y Sociedad"
+                                },
+                                {
+                                        "Profesor": "Escobar",
+                                        "Materia": "Técnicas de Procesamiento de Habla"
+                                }
+                        ]
+                },
+                "TSCDIA 5C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Martes": [],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Técnicas de Procesamiento Digital de Imágenes"
+                                }
+                        ],
+                        "Jueves": [],
+                        "Viernes": []
+                },
+                "TSDS 1C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Vilariño",
+                                        "Materia": "Técnicas de Programación"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Salico",
+                                        "Materia": "Lógica Computacional"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Vilariño",
+                                        "Materia": "Técnicas de Programación"
+                                },
+                                {
+                                        "Profesor": "Odstrcil",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Odstrcil",
+                                        "Materia": "Administración de Base de Datos"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Reynoso",
+                                        "Materia": "Elementos de Análisis Matemático"
+                                }
+                        ]
+                },
+                "TSDS 2C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Cefali",
+                                        "Materia": "Inglés"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Murua",
+                                        "Materia": "Estadística y Probabilidad para el Desarrollo de Software"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Romitelli",
+                                        "Materia": "PP1 Aproximación al Campo Laboral"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Mercado",
+                                        "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Malvacio",
+                                        "Materia": "Modelado y Diseño de Software"
+                                },
+                                {
+                                        "Profesor": "Mercado",
+                                        "Materia": "Desarrollo de Sistemas Orientado a Objetos"
+                                }
+                        ]
+                },
+                "TSDS 3C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "PP2 Desarrollo de Sistemas de Información Orientados a la Gestión y Apoyo a las Decisiones"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "Metodología de Prueba de Sistemas"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Litovicius",
+                                        "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
+                                },
+                                {
+                                        "Profesor": "Ferraro",
+                                        "Materia": "Taller de Comunicación"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Santoro",
+                                        "Materia": "Tecnologías de la Información y de la Comunicación"
+                                },
+                                {
+                                        "Profesor": "Planiscig",
+                                        "Materia": "Metodología de Prueba de Sistemas"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Litovicius",
+                                        "Materia": "Desarrollo de Aplicaciones para Dispositivos Móviles"
+                                }
+                        ]
+                },
+                "TSDS 4C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Lussiano",
+                                        "Materia": "Ingeniería de Software"
+                                }
+                        ],
+                        "Martes": [],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Malvacio",
+                                        "Materia": "Desarrollo de Sistemas Web (Front End)"
+                                },
+                                {
+                                        "Profesor": "Uñates",
+                                        "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Uñates",
+                                        "Materia": "Desarrollo e Implementación de Sistemas en la Nube"
+                                }
+                        ],
+                        "Viernes": [
+                                {
+                                        "Profesor": "Bonini",
+                                        "Materia": "Desarrollo de Sistemas Web (Back End)"
+                                }
+                        ]
+                },
+                "TSDS 5C": {
+                        "Lunes": [
+                                {
+                                        "Profesor": "Campagna",
+                                        "Materia": "PP4 Proyecto Integrador"
+                                }
+                        ],
+                        "Martes": [
+                                {
+                                        "Profesor": "Rusatti",
+                                        "Materia": "Programación Sobre Redes"
+                                }
+                        ],
+                        "Miércoles": [
+                                {
+                                        "Profesor": "Cuñarro",
+                                        "Materia": "Trabajo, Tecnología y Sociedad"
+                                },
+                                {
+                                        "Profesor": "Fassio",
+                                        "Materia": "Seminario de Actualización"
+                                }
+                        ],
+                        "Jueves": [
+                                {
+                                        "Profesor": "Polcán",
+                                        "Materia": "Gestión de Proyectos"
+                                }
+                        ],
+                        "Viernes": []
+                }
+        }
+};
+        let schedule = DB.schedule;
+        let professors = DB.professors;
+        let allComisiones = Object.keys(professors);
+        
+        // Fetch real-time data from Firebase
+        async function fetchFromFirebase() {
+            try {
+                const scheduleSnap = await db.collection('config').doc('schedule').get();
+                const professorsSnap = await db.collection('config').doc('professors').get();
+                
+                if (scheduleSnap.exists) {
+                    schedule = scheduleSnap.data().data;
+                }
+                if (professorsSnap.exists) {
+                    professors = professorsSnap.data().data;
+                    allComisiones = Object.keys(professors);
+                }
+                renderResults(); // Refresh UI with Firebase data
+            } catch(e) {
+                console.error("Error fetching from Firebase", e);
+            }
+        }
+        fetchFromFirebase();
+
+        
+
+        const inputSearch = document.getElementById('s-profesor');
+        const container = document.getElementById('results');
+        const summary = document.getElementById('filtersSummary');
+
+        function isPresencial(value) {
+            if (!value) return false;
+            // Evaluamos Disp. Docente como no requiere aula presencial estándar.
+            if (value.toLowerCase().includes("docente")) return false; 
+            return true;
+        }
+
+        function getExactDate(dia, rangeStr) {
+            const dayMap = { 'Lunes': 0, 'Martes': 1, 'Miércoles': 2, 'Jueves': 3, 'Viernes': 4 };
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            // Specific holidays provided by user
+            const holidays = ["23/3", "24/4", "2/4", "3/4", "1/5", "25/5", "15/6", "9/7", "10/7", "17/8", "12/10", "23/11"];
+            
+            // Extract HH/MM from range "DD/MM al DD/MM" or similar
+            const match = rangeStr.match(/(\d+)\/(\d+)/);
+            if (!match) return { short: dia, full: dia, isHoliday: false }; 
+
+            let day = parseInt(match[1]);
+            let month = parseInt(match[2]) - 1; // 0-indexed month
+            
+            // We use 2026 as the reference year for date arithmetic
+            const d = new Date(2026, month, day);
+            
+            // Add offset based on day of week
+            const offset = dayMap[dia] || 0;
+            d.setDate(d.getDate() + offset);
+            
+            const finalDay = d.getDate();
+            const finalMonthNum = d.getMonth();
+            const finalMonthName = monthNames[finalMonthNum];
+            
+            // Check if this date is in our holiday list
+            const dateStr = `${finalDay}/${finalMonthNum + 1}`;
+            const isHoliday = holidays.includes(dateStr);
+            
+            const fullDate = `${dia} ${finalDay} de ${finalMonthName}`;
+            return {
+                short: `${dia} ${finalDay}`,
+                full: fullDate,
+                formatted: fullDate,
+                isHoliday: isHoliday
+            };
+        }
+
+        function renderResults() {
+            if (!inputSearch) return;
+            const searchStr = inputSearch.value.trim().toLowerCase();
+            
+            if (!searchStr) {
+                summary.innerHTML = '';
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="fas fa-keyboard"></i>
+                        Ingresa un nombre de profesor para visualizar el cronograma presencial.
+                    </div>
+                `;
+                return;
+            }
+
+            let teacherClasses = [];
+            let foundNames = new Set();
+            
+            allComisiones.forEach(com => {
+                Object.entries(professors[com]).forEach(([dia, clases]) => {
+                    clases.forEach(c => {
+                        if (c.Profesor.toLowerCase().includes(searchStr)) {
+                            foundNames.add(c.Profesor);
+                            teacherClasses.push({
+                                profesor: c.Profesor,
+                                materia: c.Materia,
+                                comision: com,
+                                dia: dia
+                            });
+                        }
+                    });
+                });
+            });
+
+            if (teacherClasses.length === 0) {
+                summary.innerHTML = '';
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1; color: var(--danger)">
+                        <i class="fas fa-search-minus" style="color: var(--danger)"></i>
+                        No se encontró ningún resultado que coincida con "${searchStr}".
+                    </div>
+                `;
+                return;
+            }
+
+            let presencialAssignments = [];
+            
+            teacherClasses.forEach(tc => {
+                let hasPresencial = false;
+                schedule.forEach(week => {
+                    const value = week[tc.comision];
+                    if (isPresencial(value)) {
+                        hasPresencial = true;
+                        const dateDetails = getExactDate(tc.dia, week.FECHAS);
+                        
+                        let displayAula = value;
+                        let isCancelled = false;
+                        if ((week.SEMANA === "1" && tc.comision === "TSAS 1C" && (tc.dia === "Lunes" || tc.dia === "Martes")) ||
+                            (week.SEMANA === "1" && tc.comision.endsWith("1C") && tc.dia === "Miércoles")) {
+                            displayAula = "No hay clases";
+                            isCancelled = true;
+                        }
+
+                        presencialAssignments.push({
+                            ...tc,
+                            semana: parseInt(week.SEMANA), 
+                            semanaStr: week.SEMANA,
+                            fechas: week.FECHAS,
+                            exactDate: dateDetails.full,
+                            isHoliday: dateDetails.isHoliday,
+                            isCancelled: isCancelled,
+                            aula: displayAula
+                        });
+                    }
+                });
+
+                if (!hasPresencial) {
+                    presencialAssignments.push({
+                        ...tc,
+                        semana: 999, 
+                        semanaStr: "-",
+                        fechas: "Cursada habitual",
+                        exactDate: tc.dia,
+                        isHoliday: false,
+                        aula: "Modalidad Virtual / Disp. Docente",
+                        isVirtual: true
+                    });
+                }
+            });
+
+            if (presencialAssignments.length === 0) {
+                const names = Array.from(foundNames).join(", ");
+                summary.innerHTML = `Profesor(es): ${names}`;
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1; color: var(--warning)">
+                        <i class="fas fa-laptop-house" style="color: var(--warning)"></i>
+                        El profesor tiene asignaciones, pero ninguna requiere presencialidad directa según la matriz de aulas.
+                    </div>
+                `;
+                return;
+            }
+
+            presencialAssignments.sort((a, b) => a.semana - b.semana);
+
+            const namesDisp = Array.from(foundNames).join(" | ");
+            summary.innerHTML = `
+                <div><i class="fas fa-calendar-check"></i> Mostrando clases para: <strong>${namesDisp}</strong></div>
+                <button class="download-btn" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> Guardar como PDF</button>
+            `;
+
+            let html = '';
+            presencialAssignments.forEach((item, index) => {
+                const isVirtualBadge = item.isVirtual ? 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;' : '';
+                html += `
+                    <div class="card" style="animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-delay: ${Math.min(index * 0.05, 1)}s; ${item.isVirtual ? 'border-left-color: #94a3b8;' : ''}">
+                        <div class="card-header">
+                            <span><i class="fas fa-users"></i> ${item.comision}</span>
+                            <span class="badge" style="${isVirtualBadge}"><i class="fas ${item.isVirtual ? 'fa-laptop-house' : 'fa-school'}"></i> ${item.isVirtual ? 'Virtual' : 'Semana ' + item.semanaStr}</span>
+                        </div>
+                        <div class="card-title">${item.materia}</div>
+                        
+                        <div class="detail-row">
+                            <i class="fas fa-calendar-day"></i> ${item.exactDate}
+                        </div>
+                        
+                        <div class="detail-row">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            <span>Aula: ${item.isHoliday ? '<strong style="color: var(--danger); text-transform: uppercase;">Feriado</strong>' : (item.isCancelled ? '<strong style="color: var(--danger);">' + item.aula + '</strong>' : item.aula)}</span>
+                        </div>
+                        
+                        <div class="detail-row" style="font-size:0.95rem; color:var(--text-muted); margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                            <i class="fas fa-user-tie"></i> ${item.profesor}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function downloadPdf() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const profName = inputSearch.value.trim();
+            
+            pdf.setFontSize(16);
+            pdf.setFont("helvetica", "bold");
+            pdf.text(`Cronograma Presencial - ${profName.toUpperCase()}`, 14, 20);
+            
+            pdf.setFontSize(11);
+            pdf.setFont("helvetica", "normal");
+            
+            let y = 30;
+            const cards = document.querySelectorAll('.card');
+            
+            if (cards.length === 0) {
+                pdf.text("No se encontraron clases presenciales.", 14, y);
+            } else {
+                cards.forEach(card => {
+                    const headerTxt = card.querySelector('.card-header').innerText.trim().replace(/\n/g, ' - ');
+                    const titleTxt = card.querySelector('.card-title').innerText.trim();
+                    const details = card.querySelectorAll('.detail-row');
+                    const fechaTxt = details[0].innerText.trim(); // Now contains the exact date string
+                    const aulaTxt = details[1].innerText.trim();
+                    const profTxt = details[2].innerText.trim();
+                    
+                    // Add new page if content exceeds A4 length
+                    if (y > 270) {
+                        pdf.addPage();
+                        y = 20;
+                    }
+                    
+                    // Print structured text block
+                    pdf.setFont("helvetica", "bold");
+                    pdf.text(headerTxt, 14, y);
+                    y += 6;
+                    
+                    pdf.setFont("helvetica", "normal");
+                    pdf.text(`Materia: ${titleTxt}`, 14, y);
+                    y += 6;
+                    
+                    pdf.text(`Fecha: ${fechaTxt}`, 14, y);
+                    y += 6;
+                    
+                    pdf.text(aulaTxt, 14, y);
+                    y += 6;
+                    
+                    pdf.text(`Docente: ${profTxt}`, 14, y);
+                    y += 10;
+                    
+                    // Separator line
+                    pdf.setDrawColor(200);
+                    pdf.line(14, y - 3, 196, y - 3);
+                    y += 6;
+                });
+            }
+            
+            pdf.save(`cronograma_${profName}.pdf`);
+        }
+
+        function showCareer(careerPrefix) {
+            inputSearch.value = '';
+            
+            let presencialAssignments = [];
+            
+            const comisiones = allComisiones.filter(c => c.startsWith(careerPrefix));
+            
+            schedule.forEach(week => {
+                comisiones.forEach(com => {
+                    const aula = week[com];
+                    if (isPresencial(aula)) {
+                        Object.entries(professors[com]).forEach(([dia, clases]) => {
+                            clases.forEach(c => {
+                                const dateDetails = getExactDate(dia, week.FECHAS);
+                                
+                                let displayAula = aula;
+                                let isCancelled = false;
+                                if ((week.SEMANA === "1" && com === "TSAS 1C" && (dia === "Lunes" || dia === "Martes")) ||
+                                    (week.SEMANA === "1" && com.endsWith("1C") && dia === "Miércoles")) {
+                                    displayAula = "No hay clases";
+                                    isCancelled = true;
+                                }
+
+                                presencialAssignments.push({
+                                    profesor: c.Profesor,
+                                    materia: c.Materia,
+                                    comision: com,
+                                    dia: dia,
+                                    semana: parseInt(week.SEMANA),
+                                    semanaStr: week.SEMANA,
+                                    fechas: week.FECHAS,
+                                    exactDate: dateDetails.full,
+                                    isHoliday: dateDetails.isHoliday,
+                                    isCancelled: isCancelled,
+                                    aula: displayAula
+                                });
+                            });
+                        });
+                    }
+                });
+            });
+
+            if (presencialAssignments.length === 0) {
+                summary.innerHTML = '';
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1; color: var(--danger)">
+                        <i class="fas fa-search-minus" style="color: var(--danger)"></i>
+                        No se encontraron clases presenciales para la carrera "${careerPrefix}".
+                    </div>
+                `;
+                return;
+            }
+            
+            presencialAssignments.sort((a, b) => a.semana - b.semana);
+
+            summary.innerHTML = `
+                <div><i class="fas fa-calendar-check"></i> Mostrando cronograma presencial para: <strong>${careerPrefix}</strong></div>
+                <button class="download-btn" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i> Guardar como PDF</button>
+            `;
+
+            let html = '';
+            presencialAssignments.forEach((item, index) => {
+                html += `
+                    <div class="card" style="animation: slideUp 0.5s ease-out forwards; opacity: 0; animation-delay: ${Math.min(index * 0.05, 1)}s;">
+                        <div class="card-header">
+                            <span><i class="fas fa-users"></i> ${item.comision}</span>
+                            <span class="badge"><i class="fas fa-school"></i> Semana ${item.semanaStr}</span>
+                        </div>
+                        <div class="card-title">${item.materia}</div>
+                        
+                        <div class="detail-row">
+                            <i class="fas fa-calendar-day"></i> ${item.exactDate}
+                        </div>
+                        
+                        <div class="detail-row">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            <span>Aula: ${item.isHoliday ? '<strong style="color: var(--danger); text-transform: uppercase;">Feriado</strong>' : (item.isCancelled ? '<strong style="color: var(--danger);">' + item.aula + '</strong>' : item.aula)}</span>
+                        </div>
+                        
+                        <div class="detail-row" style="font-size:0.95rem; color:var(--text-muted); margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+                            <i class="fas fa-user-tie"></i> ${item.profesor}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        if (inputSearch) {
+            inputSearch.addEventListener('input', renderResults);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.pathname === '/admin' || window.location.pathname === '/admin/') {
+                
+            }
+
+            document.getElementById('excelUpload').addEventListener('change', handleExcelUpload);
+        });
+
+
+        // CRUD Logic
+        let currentCrudType = '';
+        let currentCrudId = null;
+
+        
+        function renderAdminMatrix() {
+            const thead = document.getElementById('adminMatrixHead');
+            const tbody = document.getElementById('adminMatrixBody');
+            
+            // Generate Headers
+            let headHtml = '<tr><th>Semana / Fechas</th>';
+            allComisiones.forEach(c => {
+                headHtml += `<th>${c}</th>`;
+            });
+            headHtml += '</tr>';
+            thead.innerHTML = headHtml;
+
+            // Generate Body
+            let bodyHtml = '';
+            schedule.forEach(week => {
+                bodyHtml += `<tr><td><strong>Semana ${week.SEMANA}</strong><br><span style="font-size:0.8rem; font-weight:normal;">${week.FECHAS}</span></td>`;
+                
+                allComisiones.forEach(com => {
+                    let aula = week[com];
+                    if (isPresencial(aula)) {
+                        // Presencial Cell
+                        let profsHtml = '';
+                        if (professors[com]) {
+                            ['Lunes','Martes','Miércoles','Jueves','Viernes'].forEach(dia => {
+                                if (professors[com][dia] && professors[com][dia].length > 0) {
+                                    professors[com][dia].forEach(clase => {
+                                        profsHtml += `<li><strong>${dia}:</strong> ${clase.Profesor} <i>(${clase.Materia})</i></li>`;
+                                    });
+                                }
+                            });
+                        }
+                        
+                        let isCancelled = false;
+                        let displayAula = aula;
+                        if ((week.SEMANA === "1" && com === "TSAS 1C") || (week.SEMANA === "1" && com.endsWith("1C"))) {
+                            // We can use a simplified check or keep the original logic. 
+                            // For simplicity, we just display the aula, since cancellations might be day-specific.
+                        }
+                        
+                        bodyHtml += `
+                            <td class="matrix-cell-presencial">
+                                <span class="matrix-aula">${displayAula}</span>
+                                <ul class="matrix-prof-list">
+                                    ${profsHtml}
+                                </ul>
+                            </td>
+                        `;
+                    } else {
+                        // Virtual Cell
+                        bodyHtml += `<td class="matrix-cell-virtual">Virtual</td>`;
+                    }
+                });
+                bodyHtml += '</tr>';
+            });
+            tbody.innerHTML = bodyHtml;
+        }
+
+        function switchAdminTab(tabId) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.style.display = 'none');
+            document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            event.target.classList.add('active');
+            const wrapper = document.getElementById('adminMainWrapper');
+            
+            if(tabId === 'tab-matrix') {
+                wrapper.classList.add('matrix-mode');
+            } else {
+                wrapper.classList.remove('matrix-mode');
+            }
+
+            if(tabId === 'tab-professors') renderAdminProfessors();
+            if(tabId === 'tab-schedule') renderAdminSchedule();
+            if(tabId === 'tab-matrix') renderAdminMatrix();
+            if(tabId === 'tab-stats') renderAdminStats();
+        }
+
+        function renderAdminProfessors() {
+            const tbody = document.getElementById('adminProfessorsBody');
+            let flatClasses = [];
+            
+            Object.keys(professors).forEach(comision => {
+                ['Lunes','Martes','Miércoles','Jueves','Viernes'].forEach(dia => {
+                    if(professors[comision][dia]) {
+                        professors[comision][dia].forEach((clase, idx) => {
+                            flatClasses.push({
+                                profesor: clase.Profesor,
+                                materia: clase.Materia,
+                                comision: comision,
+                                dia: dia,
+                                idx: idx
+                            });
+                        });
+                    }
+                });
+            });
+
+            flatClasses.sort((a, b) => a.profesor.localeCompare(b.profesor));
+
+            let html = '';
+            flatClasses.forEach(item => {
+                html += `
+                    <tr>
+                        <td><strong>${item.profesor}</strong></td>
+                        <td>${item.materia}</td>
+                        <td>${item.comision}</td>
+                        <td>${item.dia}</td>
+                        <td>
+                            <button class="action-btn edit" onclick="openProfessorModal('${item.comision}', '${item.dia}', ${item.idx})"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" onclick="deleteProfessor('${item.comision}', '${item.dia}', ${item.idx})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderAdminSchedule() {
+            const tbody = document.getElementById('adminScheduleBody');
+            let html = '';
+            schedule.forEach((week, idx) => {
+                let aulas = Object.keys(week).filter(k => k !== 'SEMANA' && k !== 'FECHAS' && week[k]).map(k => `${k}: ${week[k]}`).join(', ');
+                html += `
+                    <tr>
+                        <td>Semana ${week.SEMANA}</td>
+                        <td>${week.FECHAS}</td>
+                        <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${aulas}">${aulas || '-'}</td>
+                        <td>
+                            <button class="action-btn edit" onclick="openScheduleModal(${idx})"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" onclick="deleteSchedule(${idx})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function renderAdminStats() {
+            const tbody = document.getElementById('adminStatsBody');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Cargando estadísticas...</td></tr>';
+            
+            try {
+                // Get the last 1000 visits to compute stats locally
+                const snapshot = await db.collection('visits').orderBy('timestamp', 'desc').limit(1000).get();
+                
+                let html = '';
+                let countToday = 0;
+                let countWeek = 0;
+                let countMonth = 0;
+                let countAllTime = snapshot.size;
+                
+                const now = new Date();
+                const todayStr = now.toDateString();
+                
+                const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const ts = data.timestamp ? data.timestamp.toDate() : new Date();
+                    
+                    if (ts.toDateString() === todayStr) countToday++;
+                    if (ts >= oneWeekAgo) countWeek++;
+                    if (ts >= oneMonthAgo) countMonth++;
+                    
+                    const dateFmt = ts.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+                    
+                    let uaShort = data.userAgent || 'Desconocido';
+                    if(uaShort.includes('Windows')) uaShort = 'Windows';
+                    else if(uaShort.includes('Mac OS')) uaShort = 'Mac OS';
+                    else if(uaShort.includes('Linux')) uaShort = 'Linux';
+                    else if(uaShort.includes('Android')) uaShort = 'Android';
+                    else if(uaShort.includes('iPhone')) uaShort = 'iPhone';
+                    
+                    html += `
+                        <tr>
+                            <td>${dateFmt}</td>
+                            <td>${data.ip || '-'}</td>
+                            <td>${data.city || '-'}, ${data.country || '-'}</td>
+                            <td title="${data.userAgent}">${uaShort}</td>
+                        </tr>
+                    `;
+                });
+                
+                if (html === '') {
+                    html = '<tr><td colspan="4" style="text-align:center;">No hay visitas registradas aún.</td></tr>';
+                }
+                
+                document.getElementById('statToday').innerText = countToday;
+                document.getElementById('statWeek').innerText = countWeek;
+                document.getElementById('statMonth').innerText = countMonth;
+                document.getElementById('statAllTime').innerText = countAllTime + (countAllTime === 1000 ? '+' : '');
+                
+                tbody.innerHTML = html;
+            } catch (err) {
+                console.error("Error fetching stats:", err);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">Error cargando estadísticas. Revisa la consola.</td></tr>';
+            }
+        }
+
+        function closeCrudModal() {
+            document.getElementById('crudModal').style.display = 'none';
+        }
+
+        function openProfessorModal(comision = '', dia = '', idx = -1) {
+            currentCrudType = 'professor';
+            currentCrudId = { comision, dia, idx };
+            
+            let prof = '', mat = '';
+            if(idx !== -1) {
+                prof = professors[comision][dia][idx].Profesor;
+                mat = professors[comision][dia][idx].Materia;
+            }
+
+            document.getElementById('crudModalTitle').innerText = idx === -1 ? 'Nueva Clase' : 'Editar Clase';
+            document.getElementById('crudModalBody').innerHTML = `
+                <div class="modal-form-group">
+                    <label>Comisión</label>
+                    <input type="text" id="crudComision" value="${comision}" placeholder="Ej: TSAS 1C">
+                </div>
+                <div class="modal-form-group">
+                    <label>Día</label>
+                    <select id="crudDia">
+                        <option value="Lunes" ${dia==='Lunes'?'selected':''}>Lunes</option>
+                        <option value="Martes" ${dia==='Martes'?'selected':''}>Martes</option>
+                        <option value="Miércoles" ${dia==='Miércoles'?'selected':''}>Miércoles</option>
+                        <option value="Jueves" ${dia==='Jueves'?'selected':''}>Jueves</option>
+                        <option value="Viernes" ${dia==='Viernes'?'selected':''}>Viernes</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label>Profesor</label>
+                    <input type="text" id="crudProfesor" value="${prof}">
+                </div>
+                <div class="modal-form-group">
+                    <label>Materia</label>
+                    <input type="text" id="crudMateria" value="${mat}">
+                </div>
+            `;
+            document.getElementById('crudModal').style.display = 'flex';
+        }
+
+        function deleteProfessor(comision, dia, idx) {
+            if(!confirm('¿Seguro que deseas eliminar esta clase?')) return;
+            professors[comision][dia].splice(idx, 1);
+            saveProfessorsToFirebase();
+        }
+
+        function openScheduleModal(idx = -1) {
+            currentCrudType = 'schedule';
+            currentCrudId = idx;
+            
+            let week = idx !== -1 ? schedule[idx] : { SEMANA: schedule.length + 1, FECHAS: '' };
+            let comisionesInputs = '';
+            allComisiones.forEach(c => {
+                let val = week[c] || '';
+                comisionesInputs += `
+                    <div class="modal-form-group" style="margin-bottom: 0.5rem;">
+                        <label style="font-size: 0.9rem;">${c}</label>
+                        <input type="text" id="crud_sch_${c}" value="${val}" placeholder="Aula">
+                    </div>
+                `;
+            });
+
+            document.getElementById('crudModalTitle').innerText = idx === -1 ? 'Nueva Semana' : `Editar Semana ${week.SEMANA}`;
+            document.getElementById('crudModalBody').innerHTML = `
+                <div class="modal-form-group">
+                    <label>Número de Semana</label>
+                    <input type="text" id="crudSemana" value="${week.SEMANA}">
+                </div>
+                <div class="modal-form-group">
+                    <label>Fechas (ej: 10/8 al 14/8)</label>
+                    <input type="text" id="crudFechas" value="${week.FECHAS}">
+                </div>
+                <h4 style="margin: 1rem 0 0.5rem 0;">Aulas por Comisión</h4>
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                    ${comisionesInputs}
+                </div>
+            `;
+            document.getElementById('crudModal').style.display = 'flex';
+        }
+
+        function deleteSchedule(idx) {
+            if(!confirm('¿Seguro que deseas eliminar esta semana?')) return;
+            schedule.splice(idx, 1);
+            saveScheduleToFirebase();
+        }
+
+        function saveCrudForm() {
+            if(currentCrudType === 'professor') {
+                const com = document.getElementById('crudComision').value.trim();
+                const dia = document.getElementById('crudDia').value;
+                const prof = document.getElementById('crudProfesor').value.trim();
+                const mat = document.getElementById('crudMateria').value.trim();
+                
+                if(!com || !prof || !mat) return alert('Completa todos los campos');
+
+                if(!professors[com]) {
+                    professors[com] = { 'Lunes':[], 'Martes':[], 'Miércoles':[], 'Jueves':[], 'Viernes':[] };
+                    if(!allComisiones.includes(com)) allComisiones.push(com);
+                }
+
+                // If editing and moved to another day/comision, delete old
+                if(currentCrudId.idx !== -1) {
+                    const oldCom = currentCrudId.comision;
+                    const oldDia = currentCrudId.dia;
+                    if(oldCom !== com || oldDia !== dia) {
+                        professors[oldCom][oldDia].splice(currentCrudId.idx, 1);
+                        professors[com][dia].push({ Profesor: prof, Materia: mat });
+                    } else {
+                        professors[com][dia][currentCrudId.idx] = { Profesor: prof, Materia: mat };
+                    }
+                } else {
+                    professors[com][dia].push({ Profesor: prof, Materia: mat });
+                }
+                saveProfessorsToFirebase();
+
+            } else if(currentCrudType === 'schedule') {
+                let weekObj = {
+                    SEMANA: document.getElementById('crudSemana').value.trim(),
+                    FECHAS: document.getElementById('crudFechas').value.trim()
+                };
+                allComisiones.forEach(c => {
+                    let val = document.getElementById(`crud_sch_${c}`).value.trim();
+                    if(val) weekObj[c] = val;
+                    else weekObj[c] = "";
+                });
+
+                if(currentCrudId !== -1) {
+                    schedule[currentCrudId] = weekObj;
+                } else {
+                    schedule.push(weekObj);
+                }
+                saveScheduleToFirebase();
+            }
+            closeCrudModal();
+        }
+
+        async function saveProfessorsToFirebase() {
+            try {
+                await db.collection('config').doc('professors').set({data: professors});
+                renderAdminProfessors();
+                renderResults();
+                alert('Profesores guardados correctamente');
+            } catch(e) {
+                console.error(e);
+                alert('Error al guardar en Firebase');
+            }
+        }
+
+        async function saveScheduleToFirebase() {
+            try {
+                await db.collection('config').doc('schedule').set({data: schedule});
+                renderAdminSchedule();
+                renderAdminMatrix();
+                renderResults();
+                alert('Cronograma guardado correctamente');
+            } catch(e) {
+                console.error(e);
+                alert('Error al guardar en Firebase');
+            }
+        }
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1, defval: ""});
+                
+                // Parse schedule
+                let semanaIdx = rows.findIndex(r => r[0] === 'SEMANA');
+                let headers_1 = rows[semanaIdx];
+                let newSchedule = [];
+                for(let i = semanaIdx + 1; i < semanaIdx + 17; i++) {
+                    let r = rows[i];
+                    if(r && r[0] && !isNaN(r[0])) {
+                        let obj = {};
+                        for(let j=0; j<headers_1.length; j++) {
+                            if(headers_1[j]) {
+                                obj[headers_1[j]] = r[j] ? String(r[j]).trim() : '';
+                            }
+                        }
+                        newSchedule.push(obj);
+                    }
+                }
+                
+                // Parse professors
+                let profIdx = rows.findIndex(r => r[2] === 'Profesor');
+                let newProfessors = {};
+                let currentComision = null;
+                
+                for(let i = profIdx + 1; i < rows.length; i++) {
+                    let r = rows[i];
+                    if(!r) continue;
+                    
+                    let comision = r[1] ? String(r[1]).trim() : '';
+                    if(comision) {
+                        currentComision = comision;
+                        newProfessors[currentComision] = {
+                            'Lunes': [], 'Martes': [], 'Miércoles': [], 'Jueves': [], 'Viernes': []
+                        };
+                    }
+                    
+                    if(!currentComision) continue;
+                    
+                    if(r[2] || r[3]) newProfessors[currentComision]['Lunes'].push({'Profesor': String(r[2]||'').trim(), 'Materia': String(r[3]||'').trim()});
+                    if(r[4] || r[5]) newProfessors[currentComision]['Martes'].push({'Profesor': String(r[4]||'').trim(), 'Materia': String(r[5]||'').trim()});
+                    if(r[6] || r[7]) newProfessors[currentComision]['Miércoles'].push({'Profesor': String(r[6]||'').trim(), 'Materia': String(r[7]||'').trim()});
+                    if(r[8] || r[9]) newProfessors[currentComision]['Jueves'].push({'Profesor': String(r[8]||'').trim(), 'Materia': String(r[9]||'').trim()});
+                    if(r[10] || r[11]) newProfessors[currentComision]['Viernes'].push({'Profesor': String(r[10]||'').trim(), 'Materia': String(r[11]||'').trim()});
+                }
+                
+                // Upload to Firebase
+                Promise.all([
+                    db.collection('config').doc('schedule').set({data: newSchedule}),
+                    db.collection('config').doc('professors').set({data: newProfessors})
+                ]).then(() => {
+                    alert('Base de datos actualizada exitosamente con el Excel.');
+                    schedule = newSchedule;
+                    professors = newProfessors;
+                    allComisiones = Object.keys(professors);
+                    renderResults();
+                }).catch(err => {
+                    console.error(err);
+                    alert('Error al subir a Firebase.');
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showAdminLogin(e) {
+            if (e) e.preventDefault();
+            document.getElementById('adminModal').style.display = 'flex';
+            document.getElementById('adminError').style.display = 'none';
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+        }
+
+        function doAdminLogin() {
+            const u = document.getElementById('adminUser').value;
+            const p = document.getElementById('adminPass').value;
+            if (u === 'admin' && p === 'Terciario2016!') {
+                closeAdminLogin();
+                const mc = document.getElementById('mainContainer');
+                if (mc) mc.style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'flex';
+                if(typeof renderAdminStats === 'function') renderAdminStats();
+            } else {
+                document.getElementById('adminError').style.display = 'block';
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminPanel').style.display = 'none';
+            const mc = document.getElementById('mainContainer');
+            if (mc) mc.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
