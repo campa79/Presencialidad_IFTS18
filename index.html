@@ -453,9 +453,9 @@
 
         <main>
             <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
-                <button class="download-btn" style="background: var(--primary); margin-top: 0;" onclick="showCareer('TSAS')"><i class="fas fa-graduation-cap"></i> Ver TSAS</button>
-                <button class="download-btn" style="background: var(--primary); margin-top: 0;" onclick="showCareer('TSCDIA')"><i class="fas fa-graduation-cap"></i> Ver TSCDIA</button>
-                <button class="download-btn" style="background: var(--primary); margin-top: 0;" onclick="showCareer('TSDS')"><i class="fas fa-graduation-cap"></i> Ver TSDS</button>
+                <button type="button" class="download-btn" style="background: var(--primary); margin-top: 0;" onclick="showCareer('TSAS')"><i class="fas fa-graduation-cap"></i> Ver TSAS</button>
+                <button type="button" class="download-btn" style="background: var(--primary); margin-top: 0;" onclick="showCareer('TSCDIA')"><i class="fas fa-graduation-cap"></i> Ver TSCDIA</button>
+                <button type="button" class="download-btn" style="background: var(--primary); margin-top: 0;" onclick="showCareer('TSDS')"><i class="fas fa-graduation-cap"></i> Ver TSDS</button>
             </div>
 
             <div class="search-container">
@@ -1340,6 +1340,8 @@
         let professors = DB.professors;
         let allComisiones = Object.keys(professors);
         
+        let currentView = { type: 'search', value: '' };
+
         // Fetch real-time data from Firebase
         async function fetchFromFirebase() {
             try {
@@ -1353,7 +1355,13 @@
                     professors = professorsSnap.data().data;
                     allComisiones = Object.keys(professors);
                 }
-                renderResults(); // Refresh UI with Firebase data
+                
+                // Refresh UI with Firebase data preserving current view
+                if (currentView.type === 'career') {
+                    showCareer(currentView.value);
+                } else {
+                    renderResults();
+                }
             } catch(e) {
                 console.error("Error fetching from Firebase", e);
             }
@@ -1439,6 +1447,7 @@
 
         function renderResults() {
             const searchStr = inputSearch.value.trim().toLowerCase();
+            currentView = { type: 'search', value: searchStr };
             
             if (!searchStr) {
                 summary.innerHTML = '';
@@ -1638,6 +1647,7 @@
         }
 
         function showCareer(careerPrefix) {
+            currentView = { type: 'career', value: careerPrefix };
             inputSearch.value = '';
             
             let presencialAssignments = [];
