@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Presencialidad por Profesor/a</title>
+    <link rel="icon" type="image/jpeg" href="./IFTS_18logo.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -449,8 +450,8 @@
     <nav class="nav-bar">
         <div class="nav-container">
             <a href="https://www.ifts18.edu.ar/" class="nav-logo" target="_blank">
-                <i class="fas fa-university"></i>
-                <span>IFTS N°18</span>
+                <img src="./IFTS_18logo.jpg" alt="IFTS 18 Logo" style="height: 35px; border-radius: 50%; margin-right: 0.5rem; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);">
+                <span>IFTS Nº18</span>
             </a>
             <div class="nav-menu">
                 <a href="https://www.ifts18.edu.ar/" target="_blank"><i class="fas fa-home"></i> Inicio</a>
@@ -468,6 +469,9 @@
     <!-- Admin Login Page -->
     <div id="adminModal" style="display: flex; min-height: 60vh; align-items: center; justify-content: center; background: #f4f7f6; padding: 2rem;">
         <div style="background: white; padding: 2.5rem; border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <img src="./IFTS_18.jpg" alt="IFTS 18" style="height: 70px; border-radius: 8px; box-shadow: var(--shadow); object-fit: cover;">
+            </div>
             <h2 style="margin-bottom: 1.5rem; color: var(--primary); text-align: center;"><i class="fas fa-lock"></i> Acceso Admin</h2>
             <div style="margin-bottom: 1.5rem;">
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">Usuario</label>
@@ -2143,7 +2147,7 @@
                         html += `<td class="cell-reserved">${cellContent}</td>`;
                     } else {
                         // Free
-                        html += `<td class="cell-free"><i class="fas fa-check-circle" style="font-size:1.2rem; margin-bottom:0.25rem;"></i><br>Libre</td>`;
+                        html += `<td class="cell-free" onclick="addDailyEventFromMatrix('${aula}', '${dia}', '${week.FECHAS}')" style="cursor: pointer;" title="Click para asignar clase única"><i class="fas fa-check-circle" style="font-size:1.2rem; margin-bottom:0.25rem;"></i><br>Libre</td>`;
                     }
                 });
                 
@@ -2678,6 +2682,33 @@
             
             closeExceptionModal();
             alert('La clase original fue cancelada. Ahora selecciona la Fecha y el Aula para la reprogramación.');
+        }
+
+        function addDailyEventFromMatrix(aula, dia, fechasStr) {
+            // Get date
+            const dateDetails = getExactDate(dia, fechasStr);
+            let ymd = '';
+            
+            const match = fechasStr.match(/(\d+)\/(\d+)/);
+            if(match) {
+                const d = new Date(2026, parseInt(match[2]) - 1, parseInt(match[1]));
+                const dayMap = { 'Lunes': 0, 'Martes': 1, 'Miércoles': 2, 'Jueves': 3, 'Viernes': 4 };
+                d.setDate(d.getDate() + (dayMap[dia] || 0));
+                
+                // Format YYYY-MM-DD
+                const yr = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                ymd = `${yr}-${m}-${day}`;
+            }
+
+            switchAdminTab('tab-daily-events');
+            openDailyEventModal();
+            
+            document.getElementById('crudDailyFecha').value = ymd;
+            document.getElementById('crudDailyAula').value = aula;
+            
+            alert('Fecha y Aula pre-cargadas. Completa Comisión, Materia y Profesor.');
         }
 
         function handleExcelUpload(event) {
