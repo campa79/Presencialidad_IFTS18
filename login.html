@@ -1782,8 +1782,7 @@
                         
                         const isUserCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === tc.dia && cc.comision === tc.comision && cc.materia === tc.materia);
                         if (isUserCanceled) {
-                            displayAula = "Cancelada / Reprogramada";
-                            isCancelled = true;
+                            return; // Borrarlo completamente de la búsqueda principal
                         }
 
                         presencialAssignments.push({
@@ -1993,8 +1992,7 @@
                                 
                                 const isUserCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === dia && cc.comision === com && cc.materia === c.Materia);
                                 if (isUserCanceled) {
-                                    displayAula = "Cancelada / Reprogramada";
-                                    isCancelled = true;
+                                    return; // Borrarlo completamente de la búsqueda principal
                                 }
 
                                 presencialAssignments.push({
