@@ -1338,7 +1338,7 @@
 };
         let schedule = DB.schedule;
         let professors = DB.professors;
-        let allComisiones = Object.keys(professors);
+        let allComisiones = Object.keys(professors).sort((a, b) => a.localeCompare(b));
         
         let currentView = { type: 'search', value: '' };
 
@@ -1353,7 +1353,7 @@
                 }
                 if (professorsSnap.exists) {
                     professors = professorsSnap.data().data;
-                    allComisiones = Object.keys(professors);
+                    allComisiones = Object.keys(professors).sort((a, b) => a.localeCompare(b));
                 }
                 
                 // Refresh UI with Firebase data preserving current view

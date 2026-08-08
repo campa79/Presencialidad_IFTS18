@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": 404,
+    "message": "Document \"projects/chrononote-1wdcs/databases/(default)/documents/config/professors\" not found.",
+    "status": "NOT_FOUND"
+  }
+}

@@ -1,0 +1,925 @@
+{
+  "name": "projects/chrononote-1wdcs/databases/(default)/documents/config/schedule",
+  "fields": {
+    "data": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 3C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "10/8 al 14/8"
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "1"
+                },
+                "TSAS 1C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": "202 2° Piso"
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 5C": {
+                  "stringValue": "202 2° Piso"
+                },
+                "TSDS 3C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": "202 2° Piso"
+                },
+                "SEMANA": {
+                  "stringValue": "2"
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "17/8 al 21/8"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "3"
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSDS 4C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSAS 4C": {
+                  "stringValue": "202 2° Piso"
+                },
+                "FECHAS": {
+                  "stringValue": "24/8 al 28/8"
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "31/8 al 4/9"
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 5C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "SEMANA": {
+                  "stringValue": "4"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "5"
+                },
+                "FECHAS": {
+                  "stringValue": "7/9 al 11/9"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": "201 2° Piso"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                },
+                "TSDS 2C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "6"
+                },
+                "FECHAS": {
+                  "stringValue": "14/9 al 18/9"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "FECHAS": {
+                  "stringValue": "21/9 al 25/9"
+                },
+                "TSDS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "SEMANA": {
+                  "stringValue": "7"
+                },
+                "TSAS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 3C": {
+                  "stringValue": "Disp. Docente"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSAS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "SEMANA": {
+                  "stringValue": "8"
+                },
+                "TSAS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "FECHAS": {
+                  "stringValue": "28/9 al 2/10"
+                },
+                "TSDS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 4C": {
+                  "stringValue": "Disp. Docente"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "9"
+                },
+                "TSAS 1C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "5/10 al 9/10"
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": "202 2° Piso"
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "12/10 al 16/10"
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "10"
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": "202 2° Piso"
+                },
+                "TSDS 3C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSDS 1C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "11"
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "19/10 al 23/10"
+                },
+                "TSAS 4C": {
+                  "stringValue": "202 2° Piso"
+                },
+                "TSDS 4C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSAS 5C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "SEMANA": {
+                  "stringValue": "12"
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "26/10 al 30/10"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 2C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSAS 3C": {
+                  "stringValue": ""
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 2C": {
+                  "stringValue": ""
+                },
+                "SEMANA": {
+                  "stringValue": "13"
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "2/11 al 6/11"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSDS 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 5C": {
+                  "stringValue": ""
+                },
+                "TSAS 2C": {
+                  "stringValue": ""
+                },
+                "TSAS 3C": {
+                  "stringValue": "201 2° Piso"
+                },
+                "TSAS 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 2C": {
+                  "stringValue": "SALÓN PB"
+                },
+                "SEMANA": {
+                  "stringValue": "14"
+                },
+                "TSAS 5C": {
+                  "stringValue": ""
+                },
+                "TSDS 4C": {
+                  "stringValue": ""
+                },
+                "FECHAS": {
+                  "stringValue": "9/11 al 13/11"
+                },
+                "TSAS 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 3C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 4C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 2C": {
+                  "stringValue": ""
+                },
+                "TSCDIA 1C": {
+                  "stringValue": ""
+                },
+                "TSDS 1C": {
+                  "stringValue": ""
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSAS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "SEMANA": {
+                  "stringValue": "15"
+                },
+                "TSDS 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "FECHAS": {
+                  "stringValue": "16/11 al 20/11"
+                },
+                "TSAS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 4C": {
+                  "stringValue": "Disp. Docente"
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "TSCDIA 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 2C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 1C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "SEMANA": {
+                  "stringValue": "16"
+                },
+                "FECHAS": {
+                  "stringValue": "23/11 al 27/11"
+                },
+                "TSAS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 4C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 3C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSCDIA 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSDS 5C": {
+                  "stringValue": "Disp. Docente"
+                },
+                "TSAS 2C": {
+                  "stringValue": "Disp. Docente"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "createTime": "2026-08-06T17:25:26.498129Z",
+  "updateTime": "2026-08-06T17:30:30.104601Z"
+}

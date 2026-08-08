@@ -313,16 +313,7 @@
           "Materia": "Técnicas de Programación"
         }
       ],
-      "Martes": [
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Administración de Base de Datos"
-        },
-        {
-          "Profesor": "Bonini",
-          "Materia": "Técnicas de Programación"
-        }
-      ],
+      "Martes": [],
       "Miércoles": [
         {
           "Profesor": "Lussiano",
@@ -409,7 +400,7 @@
     "TSAS 4C": {
       "Lunes": [
         {
-          "Profesor": "Litovisius",
+          "Profesor": "Litovicius",
           "Materia": "PP3 Diseño de Arquitectura de Sistemas"
         }
       ],
@@ -419,7 +410,7 @@
           "Materia": "Gestión de Proyectos"
         },
         {
-          "Profesor": "Litovisius",
+          "Profesor": "Litovicius",
           "Materia": "PP3 Diseño de Arquitectura de Sistemas"
         }
       ],
@@ -495,16 +486,7 @@
           "Materia": "Administración de Base de Datos"
         }
       ],
-      "Miércoles": [
-        {
-          "Profesor": "Capara",
-          "Materia": "Técnicas de Programación"
-        },
-        {
-          "Profesor": "Marchetti",
-          "Materia": "Administración de Base de Datos"
-        }
-      ],
+      "Miércoles": [],
       "Jueves": [
         {
           "Profesor": "Presumido",
@@ -636,12 +618,7 @@
           "Materia": "Técnicas de Procesamiento Digital de Imágenes"
         }
       ],
-      "Jueves": [
-        {
-          "Profesor": "Bonini",
-          "Materia": "Técnicas de Procesamiento Digital de Imágenes"
-        }
-      ],
+      "Jueves": [],
       "Viernes": []
     },
     "TSDS 1C": {
@@ -763,16 +740,7 @@
           "Materia": "Ingeniería de Software"
         }
       ],
-      "Martes": [
-        {
-          "Profesor": "Bonini",
-          "Materia": "Desarrollo de Sistemas Web (Back End)"
-        },
-        {
-          "Profesor": "Lussiano",
-          "Materia": "Ingeniería de Software"
-        }
-      ],
+      "Martes": [],
       "Miércoles": [
         {
           "Profesor": "Malvacio",
