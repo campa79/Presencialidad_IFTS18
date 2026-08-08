@@ -1730,6 +1730,10 @@
                 Object.entries(professors[com]).forEach(([dia, clases]) => {
                     clases.forEach(c => {
                         if (c.Profesor.toLowerCase().includes(searchStr)) {
+                            // NOTE: Do NOT filter by canceledClasses here.
+                            // canceledClasses entries are per-semana (week-specific).
+                            // The per-week filter inside schedule.forEach below handles this correctly.
+                            // Filtering here (without semana) would wrongly hide the class for ALL weeks.
                             foundNames.add(c.Profesor);
                             teacherClasses.push({
                                 profesor: c.Profesor,
@@ -1746,6 +1750,15 @@
             let dailyTeacherClasses = [];
             dailyEvents.forEach(ev => {
                 if (ev.profesor.toLowerCase().includes(searchStr)) {
+                    // Skip if this event matches a cancelled class
+                    const isCanceled = canceledClasses.some(cc =>
+                        cc.comision.trim().toLowerCase() === ev.comision.trim().toLowerCase() &&
+                        cc.dia.trim().toLowerCase() === ev.dia.trim().toLowerCase() &&
+                        cc.materia.trim().toLowerCase() === ev.materia.trim().toLowerCase()
+                    );
+                    if (isCanceled) {
+                        return; // do not include cancelled event
+                    }
                     foundNames.add(ev.profesor);
                     dailyTeacherClasses.push(ev);
                 }
@@ -1780,7 +1793,12 @@
                             isCancelled = true;
                         }
                         
-                        const isUserCanceled = canceledClasses.some(cc => cc.semana == week.SEMANA && cc.dia === tc.dia && cc.comision === tc.comision && cc.materia === tc.materia);
+                        const isUserCanceled = canceledClasses.some(cc =>
+                            String(cc.semana) === String(week.SEMANA) &&
+                            cc.dia.trim().toLowerCase() === tc.dia.trim().toLowerCase() &&
+                            cc.comision.trim().toLowerCase() === tc.comision.trim().toLowerCase() &&
+                            cc.materia.trim().toLowerCase() === tc.materia.trim().toLowerCase()
+                        );
                         if (isUserCanceled) {
                             return; // Borrarlo completamente de la búsqueda principal
                         }
@@ -2200,7 +2218,12 @@
                             if (professors[com] && professors[com][dia]) {
                                 professors[com][dia].forEach(clase => {
                                     // Check if canceled
-                                    const isCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === dia && cc.comision === com && cc.materia === clase.Materia);
+                                    const isCanceled = canceledClasses.some(cc =>
+                                        String(cc.semana) === String(week.SEMANA) &&
+                                        cc.dia.trim().toLowerCase() === dia.trim().toLowerCase() &&
+                                        cc.comision.trim().toLowerCase() === com.trim().toLowerCase() &&
+                                        cc.materia.trim().toLowerCase() === clase.Materia.trim().toLowerCase()
+                                    );
                                     if (!isCanceled) {
                                         assignedClasses.push({
                                             comision: com,
@@ -2806,20 +2829,29 @@
 
         async function cancelClassException() {
             if(!currentExceptionTarget) return;
-            canceledClasses.push(currentExceptionTarget);
+            // Normalize semana to string for consistent comparisons
+            const entry = { ...currentExceptionTarget, semana: String(currentExceptionTarget.semana) };
+            canceledClasses.push(entry);
             await saveCanceledClassesToFirebase();
             closeExceptionModal();
             renderAdminMatrix();
+            renderResults(); // Refresh public-facing search immediately
             alert('Clase cancelada correctamente para ese día.');
         }
 
         async function restoreClassException(semana, dia, comision, materia) {
             if(!confirm(`¿Estás seguro de RESTAURAR la clase de ${materia} de la comisión ${comision} para la semana ${semana}?`)) return;
             
-            canceledClasses = canceledClasses.filter(cc => !(cc.semana === semana && cc.dia === dia && cc.comision === comision && cc.materia === materia));
+            canceledClasses = canceledClasses.filter(cc => !(
+                String(cc.semana) === String(semana) &&
+                cc.dia.trim().toLowerCase() === dia.trim().toLowerCase() &&
+                cc.comision.trim().toLowerCase() === comision.trim().toLowerCase() &&
+                cc.materia.trim().toLowerCase() === materia.trim().toLowerCase()
+            ));
             await saveCanceledClassesToFirebase();
             
             renderAdminMatrix();
+            renderResults(); // Refresh public-facing search immediately
             alert('Clase restaurada correctamente.');
         }
 
