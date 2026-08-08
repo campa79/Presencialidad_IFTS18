@@ -2206,7 +2206,16 @@
                                             comision: com,
                                             profesor: clase.Profesor,
                                             materia: clase.Materia,
-                                            isDailyEvent: false
+                                            isDailyEvent: false,
+                                            isCanceled: false
+                                        });
+                                    } else {
+                                        assignedClasses.push({
+                                            comision: com,
+                                            profesor: clase.Profesor,
+                                            materia: clase.Materia,
+                                            isDailyEvent: false,
+                                            isCanceled: true
                                         });
                                     }
                                 });
@@ -2237,12 +2246,24 @@
                                     <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0; color: #856404;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
                                 </div>
                                 `;
+                            } else if (c.isCanceled) {
+                                return `
+                                <div onclick="restoreClassException('${week.SEMANA}', '${dia}', '${c.comision}', '${c.materia}')" style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1; cursor: pointer; opacity: 0.65; background-color: #f8d7da; border-radius: 4px; padding: 2px;" title="Clase Cancelada. Haz clic para RESTAURAR.">
+                                    <div class="reserved-title" style="font-size: 0.85rem; margin-bottom: 0.15rem; text-decoration: line-through; color: #721c24;">${c.comision}</div>
+                                    <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: line-through; color: #721c24;" title="${c.materia}"><i class="fas fa-book"></i> ${c.materia}</div>
+                                    <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0; text-decoration: line-through; color: #721c24;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
+                                </div>
+                                `;
                             } else {
                                 return `
                                 <div onclick="openExceptionModal('${week.SEMANA}', '${dia}', '${c.comision}', '${c.materia}', '${c.profesor}')" style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1; cursor: pointer;" title="Click para cancelar o reprogramar esta clase">
                                     <div class="reserved-title" style="font-size: 0.85rem; margin-bottom: 0.15rem;">${c.comision}</div>
                                     <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${c.materia}"><i class="fas fa-book"></i> ${c.materia}</div>
                                     <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
+                                </div>
+                                `;
+                            }
+                        }).join('');"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
                                 </div>
                                 `;
                             }
@@ -2767,6 +2788,16 @@
             closeExceptionModal();
             renderAdminMatrix();
             alert('Clase cancelada correctamente para ese día.');
+        }
+
+        async function restoreClassException(semana, dia, comision, materia) {
+            if(!confirm(`¿Estás seguro de RESTAURAR la clase de ${materia} de la comisión ${comision} para la semana ${semana}?`)) return;
+            
+            canceledClasses = canceledClasses.filter(cc => !(cc.semana === semana && cc.dia === dia && cc.comision === comision && cc.materia === materia));
+            await saveCanceledClassesToFirebase();
+            
+            renderAdminMatrix();
+            alert('Clase restaurada correctamente.');
         }
 
         function rescheduleClassException() {
