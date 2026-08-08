@@ -598,12 +598,25 @@
             <!-- Tab Matriz -->
             <div id="tab-matrix" class="admin-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2>Matriz General de Presencialidad</h2>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Cruce completo de Semanas vs Comisiones y Profesores afectados.</p>
+                    <div>
+                        <h2>Matriz General de Presencialidad (Ocupación de Aulas)</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Visualiza rápidamente qué aulas están ocupadas o libres por semana.</p>
+                    </div>
+                    <div>
+                        <select id="matrixWeekSelect" onchange="renderAdminMatrix()" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);"></select>
+                    </div>
                 </div>
                 <div class="admin-table-container" style="max-height: 70vh; overflow: auto; position: relative;">
-                    <table class="matrix-table">
+                    <table class="matrix-table" style="width: 100%; border-collapse: collapse;">
                         <thead id="adminMatrixHead">
+                            <tr>
+                                <th>Aula</th>
+                                <th>Lunes</th>
+                                <th>Martes</th>
+                                <th>Miércoles</th>
+                                <th>Jueves</th>
+                                <th>Viernes</th>
+                            </tr>
                         </thead>
                         <tbody id="adminMatrixBody">
                         </tbody>
