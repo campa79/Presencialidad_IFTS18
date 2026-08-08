@@ -501,6 +501,7 @@
                 <div class="admin-tab" onclick="switchAdminTab('tab-schedule')">Cronograma (Aulas)</div>
                 <div class="admin-tab" onclick="switchAdminTab('tab-excel')">Carga Masiva</div>
                 <div class="admin-tab" onclick="switchAdminTab('tab-matrix')">Matriz General</div>
+                <div class="admin-tab" onclick="switchAdminTab('tab-daily-events')">Eventos Diarios</div>
                 <div class="admin-tab" onclick="switchAdminTab('tab-stats')">Estadísticas</div>
                 <div class="admin-tab" onclick="switchAdminTab('tab-cartelera')">Cartelera</div>
             </div>
@@ -635,13 +636,40 @@
             </div>
 
             <!-- Tab Excel -->
-            <div id="tab-excel" class="admin-section">
+            <div id="tab-excel" class="admin-section" style="display: none;">
                 <div style="background: var(--card-bg); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: var(--shadow);">
                     <h2 style="margin-bottom: 1rem;"><i class="fas fa-file-excel" style="color: #217346;"></i> Carga Masiva (Excel)</h2>
                     <p style="margin-bottom: 1rem; color: var(--text-muted);">Sube el archivo Excel de presencialidad para actualizar la base de datos en tiempo real.</p>
                     <input type="file" id="excelUpload" accept=".xlsx, .xls" style="margin-bottom: 1rem;">
                     <br>
                     <button class="download-btn" onclick="document.getElementById('excelUpload').click()" style="background: #217346;"><i class="fas fa-upload"></i> Seleccionar y Subir Excel</button>
+                </div>
+            </div>
+            
+            <!-- Tab Eventos Diarios -->
+            <div id="tab-daily-events" class="admin-section" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div>
+                        <h2>Eventos Diarios y Excepciones</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Agrega clases sueltas (ej. recuperatorios, exámenes) por un solo día.</p>
+                    </div>
+                    <button class="download-btn" onclick="openDailyEventModal()" style="margin:0; background: var(--secondary);"><i class="fas fa-plus"></i> Añadir Evento</button>
+                </div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Comisión/Carrera</th>
+                                <th>Materia</th>
+                                <th>Profesor</th>
+                                <th>Aula</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminDailyEventsBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
             
@@ -700,6 +728,37 @@
             <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
                 <button onclick="closeCrudModal()" style="background: transparent; color: var(--text-muted); border: none; cursor: pointer; padding: 0.5rem 1rem; font-weight: 600;">Cancelar</button>
                 <button onclick="saveCrudForm()" class="download-btn" style="margin: 0; background: var(--primary);">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eventos Diarios -->
+    <div id="dailyEventModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto;">
+            <h2 id="dailyEventModalTitle" style="margin-bottom: 1rem;"><i class="fas fa-calendar-day"></i> Evento Diario</h2>
+            <div class="modal-form-group">
+                <label>Fecha</label>
+                <input type="date" id="crudDailyFecha">
+            </div>
+            <div class="modal-form-group">
+                <label>Comisión / Carrera</label>
+                <input type="text" id="crudDailyComision" placeholder="Ej. TSAS 1C">
+            </div>
+            <div class="modal-form-group">
+                <label>Materia</label>
+                <input type="text" id="crudDailyMateria">
+            </div>
+            <div class="modal-form-group">
+                <label>Profesor</label>
+                <input type="text" id="crudDailyProfesor">
+            </div>
+            <div class="modal-form-group">
+                <label>Aula</label>
+                <select id="crudDailyAula" style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);"></select>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button onclick="closeDailyEventModal()" style="background: transparent; color: var(--text-muted); border: none; cursor: pointer; padding: 0.5rem 1rem; font-weight: 600;">Cancelar</button>
+                <button onclick="saveDailyEvent()" class="download-btn" style="margin: 0; background: var(--primary);">Guardar</button>
             </div>
         </div>
     </div>
@@ -1548,6 +1607,7 @@
 };
         let schedule = DB.schedule;
         let professors = DB.professors;
+        let dailyEvents = [];
         let allComisiones = Object.keys(professors).sort((a, b) => a.localeCompare(b));
         
         // Fetch real-time data from Firebase
@@ -1555,6 +1615,7 @@
             try {
                 const scheduleSnap = await db.collection('config').doc('schedule').get();
                 const professorsSnap = await db.collection('config').doc('professors').get();
+                const dailyEventsSnap = await db.collection('config').doc('daily_events').get();
                 
                 if (scheduleSnap.exists) {
                     schedule = scheduleSnap.data().data;
@@ -1562,6 +1623,9 @@
                 if (professorsSnap.exists) {
                     professors = professorsSnap.data().data;
                     allComisiones = Object.keys(professors).sort((a, b) => a.localeCompare(b));
+                }
+                if (dailyEventsSnap.exists) {
+                    dailyEvents = dailyEventsSnap.data().data || [];
                 }
                 renderResults(); // Refresh UI with Firebase data
             } catch(e) {
@@ -2110,6 +2174,7 @@
             if(tabId === 'tab-schedule') renderAdminSchedule();
             if(tabId === 'tab-matrix') renderAdminMatrix();
             if(tabId === 'tab-stats') renderAdminStats();
+            if(tabId === 'tab-daily-events') renderAdminDailyEvents();
         }
 
         function renderAdminProfessors() {
@@ -2444,6 +2509,94 @@
                 alert('Error al guardar en Firebase');
             }
         }
+        
+        function renderAdminDailyEvents() {
+            const tbody = document.getElementById('adminDailyEventsBody');
+            let html = '';
+            
+            // Sort events by date descending or ascending
+            const sortedEvents = [...dailyEvents].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            
+            sortedEvents.forEach((ev, i) => {
+                const originalIndex = dailyEvents.indexOf(ev);
+                html += `
+                    <tr>
+                        <td>${ev.fecha}</td>
+                        <td>${ev.comision}</td>
+                        <td>${ev.materia}</td>
+                        <td>${ev.profesor}</td>
+                        <td>${ev.aula}</td>
+                        <td>
+                            <button class="action-btn action-delete" onclick="deleteDailyEvent(${originalIndex})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function openDailyEventModal() {
+            document.getElementById('crudDailyFecha').value = '';
+            document.getElementById('crudDailyComision').value = '';
+            document.getElementById('crudDailyMateria').value = '';
+            document.getElementById('crudDailyProfesor').value = '';
+            
+            const baseAulas = ["SALÓN PB", "201 2° Piso", "202 2° Piso", "203 2° Piso", "204 2° Piso"];
+            let customAulas = [];
+            try { customAulas = JSON.parse(localStorage.getItem('customAulas') || '[]'); } catch(e) {}
+            const allAulas = [...baseAulas, ...customAulas];
+            
+            let optionsHtml = '<option value="">-- Seleccionar Aula --</option><option value="Virtual">Virtual</option>';
+            allAulas.forEach(a => optionsHtml += `<option value="${a}">${a}</option>`);
+            
+            document.getElementById('crudDailyAula').innerHTML = optionsHtml;
+            document.getElementById('dailyEventModal').style.display = 'flex';
+        }
+
+        function closeDailyEventModal() {
+            document.getElementById('dailyEventModal').style.display = 'none';
+        }
+
+        async function saveDailyEvent() {
+            const fecha = document.getElementById('crudDailyFecha').value;
+            const comision = document.getElementById('crudDailyComision').value.trim();
+            const materia = document.getElementById('crudDailyMateria').value.trim();
+            const profesor = document.getElementById('crudDailyProfesor').value.trim();
+            const aula = document.getElementById('crudDailyAula').value;
+
+            if(!fecha || !comision || !materia || !profesor || !aula) return alert('Completa todos los campos');
+
+            const newEvent = {
+                id: Date.now().toString(),
+                fecha: fecha,
+                comision: comision,
+                materia: materia,
+                profesor: profesor,
+                aula: aula
+            };
+
+            dailyEvents.push(newEvent);
+            await saveDailyEventsToFirebase();
+            closeDailyEventModal();
+        }
+
+        async function deleteDailyEvent(idx) {
+            if(!confirm('¿Seguro que deseas eliminar este evento?')) return;
+            dailyEvents.splice(idx, 1);
+            await saveDailyEventsToFirebase();
+        }
+
+        async function saveDailyEventsToFirebase() {
+            try {
+                await db.collection('config').doc('daily_events').set({data: dailyEvents});
+                renderAdminDailyEvents();
+                renderResults();
+                alert('Eventos guardados correctamente');
+            } catch(e) {
+                console.error(e);
+                alert('Error al guardar en Firebase');
+            }
+        }
 
         function handleExcelUpload(event) {
             const file = event.target.files[0];
@@ -2599,6 +2752,29 @@
                     }
                 });
             });
+
+            // Include single day events for the target date
+            dailyEvents.forEach(ev => {
+                if(!ev.fecha) return;
+                const parts = ev.fecha.split('-');
+                if(parts.length === 3) {
+                    // Check if YMD matches target Date
+                    const evY = parseInt(parts[0]);
+                    const evM = parseInt(parts[1]) - 1; // getMonth() is 0-indexed
+                    const evD = parseInt(parts[2]);
+                    
+                    if (evY === targetDateObj.getFullYear() && evM === targetDateObj.getMonth() && evD === targetDateObj.getDate()) {
+                        results.push({
+                            fecha: `${evD}/${evM + 1}`,
+                            carrera: ev.comision,
+                            materia: ev.materia,
+                            profesor: ev.profesor,
+                            aula: ev.aula
+                        });
+                    }
+                }
+            });
+
             return results;
         }
 
