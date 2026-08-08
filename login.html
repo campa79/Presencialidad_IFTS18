@@ -648,12 +648,12 @@
             
             <!-- Tab Eventos Diarios -->
             <div id="tab-daily-events" class="admin-section" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="flex: 1; min-width: 250px;">
                         <h2>Eventos Diarios y Excepciones</h2>
                         <p style="color: var(--text-muted); font-size: 0.9rem;">Agrega clases sueltas (ej. recuperatorios, exámenes) por un solo día.</p>
                     </div>
-                    <button class="download-btn" onclick="openDailyEventModal()" style="margin:0; background: var(--secondary);"><i class="fas fa-plus"></i> Añadir Evento</button>
+                    <button class="download-btn" onclick="openDailyEventModal()" style="margin:0; background: var(--secondary); flex-shrink: 0;"><i class="fas fa-plus"></i> Añadir Evento</button>
                 </div>
                 <div class="admin-table-container">
                     <table class="admin-table">
@@ -2532,6 +2532,13 @@
                     </tr>
                 `;
             });
+            
+            if (sortedEvents.length === 0) {
+                html = `<tr><td colspan="6" style="text-align:center; padding: 2rem;">
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">No hay eventos diarios registrados.</p>
+                    <button class="download-btn" onclick="openDailyEventModal()" style="background: var(--primary);"><i class="fas fa-plus"></i> Añadir tu primer Evento</button>
+                </td></tr>`;
+            }
             tbody.innerHTML = html;
         }
 
