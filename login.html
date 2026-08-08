@@ -474,6 +474,10 @@
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #4a5568;">Contraseña</label>
                 <input type="password" id="adminPass" style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1rem;" onkeypress="if(event.key === 'Enter') doAdminLogin();">
             </div>
+            <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="rememberMe" style="width: 1rem; height: 1rem; accent-color: var(--primary);">
+                <label for="rememberMe" style="font-weight: 500; color: #4a5568; cursor: pointer;">Recordarme</label>
+            </div>
             <div style="color: var(--danger); margin-bottom: 1rem; font-size: 0.95rem; display: none; text-align: center; font-weight: 500;" id="adminError"><i class="fas fa-exclamation-circle"></i> Credenciales incorrectas</div>
             <div style="display: flex; justify-content: center; margin-top: 2rem;">
                 <button onclick="doAdminLogin()" class="download-btn" style="margin: 0; width: 100%; padding: 0.85rem; background: var(--primary); font-size: 1.05rem;">Iniciar Sesión</button>
@@ -1883,6 +1887,27 @@
             container.innerHTML = html;
         }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchFromFirebase();
+            const container = document.getElementById('adminPanel');
+            if(container) {
+                container.style.display = 'none';
+            }
+            
+            const savedUser = localStorage.getItem('adminUser');
+            const savedPass = localStorage.getItem('adminPass');
+            if (savedUser && savedPass) {
+                const uInput = document.getElementById('adminUser');
+                const pInput = document.getElementById('adminPass');
+                const rInput = document.getElementById('rememberMe');
+                if (uInput && pInput && rInput) {
+                    uInput.value = savedUser;
+                    pInput.value = savedPass;
+                    rInput.checked = true;
+                }
+            }
+        });
+
         if (inputSearch) {
             inputSearch.addEventListener('input', renderResults);
         }
@@ -2390,7 +2415,17 @@
         function doAdminLogin() {
             const u = document.getElementById('adminUser').value;
             const p = document.getElementById('adminPass').value;
+            const remember = document.getElementById('rememberMe').checked;
+            
             if (u === 'admin' && p === 'Terciario2016!') {
+                if (remember) {
+                    localStorage.setItem('adminUser', u);
+                    localStorage.setItem('adminPass', p);
+                } else {
+                    localStorage.removeItem('adminUser');
+                    localStorage.removeItem('adminPass');
+                }
+                
                 closeAdminLogin();
                 const mc = document.getElementById('mainContainer');
                 if (mc) mc.style.display = 'none';
