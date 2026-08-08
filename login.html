@@ -602,25 +602,33 @@
                         <h2>Matriz General de Presencialidad (Ocupación de Aulas)</h2>
                         <p style="color: var(--text-muted); font-size: 0.9rem;">Visualiza rápidamente qué aulas están ocupadas o libres por semana.</p>
                     </div>
-                    <div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="download-btn" onclick="openAulaModal()" style="margin:0; background: var(--secondary);"><i class="fas fa-plus"></i> Añadir Aula</button>
                         <select id="matrixWeekSelect" onchange="renderAdminMatrix()" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-color);"></select>
                     </div>
                 </div>
                 <div class="admin-table-container" style="max-height: 70vh; overflow: auto; position: relative;">
                     <table class="matrix-table" style="width: 100%; border-collapse: collapse;">
                         <thead id="adminMatrixHead">
-                            <tr>
-                                <th>Aula</th>
-                                <th>Lunes</th>
-                                <th>Martes</th>
-                                <th>Miércoles</th>
-                                <th>Jueves</th>
-                                <th>Viernes</th>
-                            </tr>
                         </thead>
                         <tbody id="adminMatrixBody">
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Modal Añadir Aula -->
+            <div id="aulaModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+                <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: var(--shadow);">
+                    <h2 style="margin-bottom: 1.5rem; color: var(--primary);"><i class="fas fa-chalkboard"></i> Añadir Nueva Aula</h2>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nombre del Aula</label>
+                        <input type="text" id="newAulaName" style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);" placeholder="Ej. Laboratorio 1">
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="closeAulaModal()" style="background: transparent; color: var(--text-muted); border: none; cursor: pointer; padding: 0.5rem 1rem; font-weight: 600;">Cancelar</button>
+                        <button onclick="saveNewAula()" class="download-btn" style="margin: 0; background: var(--primary);">Guardar</button>
+                    </div>
                 </div>
             </div>
 
@@ -1941,10 +1949,11 @@
         
         function renderAdminMatrix() {
             const weekSelect = document.getElementById('matrixWeekSelect');
+            const thead = document.getElementById('adminMatrixHead');
             const tbody = document.getElementById('adminMatrixBody');
             
             if (!schedule || schedule.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay cronograma disponible.</td></tr>';
+                tbody.innerHTML = '<tr><td style="text-align:center;">No hay cronograma disponible.</td></tr>';
                 return;
             }
 
@@ -1961,8 +1970,15 @@
             const selectedWeekIndex = parseInt(weekSelect.value) || 0;
             const week = schedule[selectedWeekIndex];
             
-            // Extract all unique aulas across the entire schedule to keep rows consistent
-            let allAulasSet = new Set();
+            // Base Aulas + Custom Aulas
+            const baseAulas = ["Salón PB", "2° Piso 201", "2° Piso 202", "2° Piso 203", "2° Piso 204"];
+            let customAulas = [];
+            try {
+                customAulas = JSON.parse(localStorage.getItem('customAulas') || '[]');
+            } catch(e) {}
+            
+            // Extract all unique aulas from schedule in case there are implicit ones not in the list
+            let allAulasSet = new Set([...baseAulas, ...customAulas]);
             schedule.forEach(w => {
                 allComisiones.forEach(com => {
                     const aulaStr = w[com];
@@ -1972,10 +1988,14 @@
                 });
             });
             
-            let allAulas = Array.from(allAulasSet).sort();
+            // To respect user sorting: first baseAulas in order, then customAulas in order, then any other found
+            let orderedAulas = [];
+            baseAulas.forEach(a => { if(allAulasSet.has(a)) { orderedAulas.push(a); allAulasSet.delete(a); } });
+            customAulas.forEach(a => { if(allAulasSet.has(a)) { orderedAulas.push(a); allAulasSet.delete(a); } });
+            orderedAulas = orderedAulas.concat(Array.from(allAulasSet).sort());
             
-            if (allAulas.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay aulas presenciales registradas.</td></tr>';
+            if (orderedAulas.length === 0) {
+                tbody.innerHTML = '<tr><td style="text-align:center;">No hay aulas presenciales registradas.</td></tr>';
                 return;
             }
 
@@ -1991,12 +2011,21 @@
             });
 
             const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-            let html = '';
+            
+            // Generate Headers (Columns are Aulas now)
+            let headHtml = '<tr><th>Día</th>';
+            orderedAulas.forEach(aula => {
+                headHtml += `<th>${aula}</th>`;
+            });
+            headHtml += '</tr>';
+            thead.innerHTML = headHtml;
 
-            allAulas.forEach(aula => {
-                html += `<tr><td style="font-weight:bold; text-align:center; vertical-align:middle; font-size:1.1rem; background:#f4f7f6;">${aula}</td>`;
+            // Generate Body (Rows are Days now)
+            let html = '';
+            dias.forEach(dia => {
+                html += `<tr><td style="font-weight:bold; text-align:center; vertical-align:middle; font-size:1.1rem; background:#f4f7f6;">${dia}</td>`;
                 
-                dias.forEach(dia => {
+                orderedAulas.forEach(aula => {
                     let assignedClasses = [];
                     
                     if (aulaToComisiones[aula]) {
@@ -2033,6 +2062,33 @@
             });
             
             tbody.innerHTML = html;
+        }
+
+        function openAulaModal() {
+            document.getElementById('newAulaName').value = '';
+            document.getElementById('aulaModal').style.display = 'flex';
+        }
+
+        function closeAulaModal() {
+            document.getElementById('aulaModal').style.display = 'none';
+        }
+
+        function saveNewAula() {
+            const name = document.getElementById('newAulaName').value.trim();
+            if (!name) return;
+            
+            let customAulas = [];
+            try {
+                customAulas = JSON.parse(localStorage.getItem('customAulas') || '[]');
+            } catch(e) {}
+            
+            if (!customAulas.includes(name)) {
+                customAulas.push(name);
+                localStorage.setItem('customAulas', JSON.stringify(customAulas));
+            }
+            
+            closeAulaModal();
+            renderAdminMatrix();
         }
 
         function switchAdminTab(tabId) {
