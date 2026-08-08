@@ -1902,60 +1902,99 @@
 
         
         function renderAdminMatrix() {
-            const thead = document.getElementById('adminMatrixHead');
+            const weekSelect = document.getElementById('matrixWeekSelect');
             const tbody = document.getElementById('adminMatrixBody');
             
-            // Generate Headers
-            let headHtml = '<tr><th>Semana / Fechas</th>';
-            allComisiones.forEach(c => {
-                headHtml += `<th>${c}</th>`;
-            });
-            headHtml += '</tr>';
-            thead.innerHTML = headHtml;
+            if (!schedule || schedule.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay cronograma disponible.</td></tr>';
+                return;
+            }
 
-            // Generate Body
-            let bodyHtml = '';
-            schedule.forEach(week => {
-                bodyHtml += `<tr><td><strong>Semana ${week.SEMANA}</strong><br><span style="font-size:0.8rem; font-weight:normal;">${week.FECHAS}</span></td>`;
-                
+            // Populate week select if empty
+            if (weekSelect.options.length === 0) {
+                schedule.forEach((w, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.text = `Semana ${w.SEMANA} (${w.FECHAS})`;
+                    weekSelect.appendChild(opt);
+                });
+            }
+            
+            const selectedWeekIndex = parseInt(weekSelect.value) || 0;
+            const week = schedule[selectedWeekIndex];
+            
+            // Extract all unique aulas across the entire schedule to keep rows consistent
+            let allAulasSet = new Set();
+            schedule.forEach(w => {
                 allComisiones.forEach(com => {
-                    let aula = week[com];
-                    if (isPresencial(aula)) {
-                        // Presencial Cell
-                        let profsHtml = '';
-                        if (professors[com]) {
-                            ['Lunes','Martes','Miércoles','Jueves','Viernes'].forEach(dia => {
-                                if (professors[com][dia] && professors[com][dia].length > 0) {
-                                    professors[com][dia].forEach(clase => {
-                                        profsHtml += `<li><strong>${dia}:</strong> ${clase.Profesor} <i>(${clase.Materia})</i></li>`;
-                                    });
-                                }
-                            });
-                        }
-                        
-                        let isCancelled = false;
-                        let displayAula = aula;
-                        if ((week.SEMANA === "1" && com === "TSAS 1C") || (week.SEMANA === "1" && com.endsWith("1C"))) {
-                            // We can use a simplified check or keep the original logic. 
-                            // For simplicity, we just display the aula, since cancellations might be day-specific.
-                        }
-                        
-                        bodyHtml += `
-                            <td class="matrix-cell-presencial">
-                                <span class="matrix-aula">${displayAula}</span>
-                                <ul class="matrix-prof-list">
-                                    ${profsHtml}
-                                </ul>
-                            </td>
-                        `;
-                    } else {
-                        // Virtual Cell
-                        bodyHtml += `<td class="matrix-cell-virtual">Virtual</td>`;
+                    const aulaStr = w[com];
+                    if (isPresencial(aulaStr)) {
+                        allAulasSet.add(aulaStr.trim());
                     }
                 });
-                bodyHtml += '</tr>';
             });
-            tbody.innerHTML = bodyHtml;
+            
+            let allAulas = Array.from(allAulasSet).sort();
+            
+            if (allAulas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay aulas presenciales registradas.</td></tr>';
+                return;
+            }
+
+            // For the selected week, map which comisiones use which aula
+            let aulaToComisiones = {};
+            allComisiones.forEach(com => {
+                const aulaStr = week[com];
+                if (isPresencial(aulaStr)) {
+                    const aula = aulaStr.trim();
+                    if (!aulaToComisiones[aula]) aulaToComisiones[aula] = [];
+                    aulaToComisiones[aula].push(com);
+                }
+            });
+
+            const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+            let html = '';
+
+            allAulas.forEach(aula => {
+                html += `<tr><td style="font-weight:bold; text-align:center; vertical-align:middle; font-size:1.1rem; background:#f4f7f6;">${aula}</td>`;
+                
+                dias.forEach(dia => {
+                    let assignedClasses = [];
+                    
+                    if (aulaToComisiones[aula]) {
+                        aulaToComisiones[aula].forEach(com => {
+                            if (professors[com] && professors[com][dia]) {
+                                professors[com][dia].forEach(clase => {
+                                    assignedClasses.push({
+                                        comision: com,
+                                        profesor: clase.Profesor,
+                                        materia: clase.Materia
+                                    });
+                                });
+                            }
+                        });
+                    }
+                    
+                    if (assignedClasses.length > 0) {
+                        // Reserved
+                        let cellContent = assignedClasses.map(c => `
+                            <div style="margin-bottom: 0.5rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.5rem;">
+                                <div class="reserved-title">${c.comision}</div>
+                                <div class="reserved-info"><i class="fas fa-book"></i> ${c.materia}</div>
+                                <div class="reserved-info"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
+                            </div>
+                        `).join('');
+                        html += `<td class="cell-reserved">${cellContent}</td>`;
+                    } else {
+                        // Free
+                        html += `<td class="cell-free"><i class="fas fa-check-circle" style="font-size:1.2rem; margin-bottom:0.25rem;"></i><br>Libre</td>`;
+                    }
+                });
+                
+                html += `</tr>`;
+            });
+            
+            tbody.innerHTML = html;
         }
 
         function switchAdminTab(tabId) {
