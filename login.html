@@ -1742,7 +1742,16 @@
                 });
             });
 
-            if (teacherClasses.length === 0) {
+            // Also check daily events
+            let dailyTeacherClasses = [];
+            dailyEvents.forEach(ev => {
+                if (ev.profesor.toLowerCase().includes(searchStr)) {
+                    foundNames.add(ev.profesor);
+                    dailyTeacherClasses.push(ev);
+                }
+            });
+
+            if (teacherClasses.length === 0 && dailyTeacherClasses.length === 0) {
                 summary.innerHTML = '';
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1; color: var(--danger)">
@@ -1770,6 +1779,12 @@
                             displayAula = "No hay clases";
                             isCancelled = true;
                         }
+                        
+                        const isUserCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === tc.dia && cc.comision === tc.comision && cc.materia === tc.materia);
+                        if (isUserCanceled) {
+                            displayAula = "Cancelada / Reprogramada";
+                            isCancelled = true;
+                        }
 
                         presencialAssignments.push({
                             ...tc,
@@ -1783,7 +1798,51 @@
                         });
                     }
                 });
+            }); // End of teacherClasses logic
+            
+            // Add Daily Events to presencialAssignments
+            dailyTeacherClasses.forEach(ev => {
+                if(!ev.fecha) return;
+                const parts = ev.fecha.split('-');
+                if(parts.length !== 3) return;
+                const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+                const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                
+                if (d.getDay() === 0 || d.getDay() === 6) return; // Skip weekends if any
+                
+                const diaStr = dayNames[d.getDay()];
+                const fullDate = `${diaStr} ${d.getDate()} de ${monthNames[d.getMonth()]}`;
+                
+                let eventSemana = 999;
+                let eventSemanaStr = "Evento";
+                
+                schedule.forEach((week) => {
+                    const dateDetails = getExactDate(diaStr, week.FECHAS);
+                    if (dateDetails.full === fullDate) {
+                        eventSemana = parseInt(week.SEMANA);
+                        eventSemanaStr = week.SEMANA;
+                    }
+                });
+                
+                presencialAssignments.push({
+                    profesor: ev.profesor,
+                    materia: ev.materia,
+                    comision: ev.comision,
+                    dia: diaStr,
+                    semana: eventSemana,
+                    semanaStr: eventSemanaStr,
+                    fechas: `${d.getDate()}/${d.getMonth()+1}`,
+                    exactDate: fullDate,
+                    isHoliday: false,
+                    isCancelled: false,
+                    aula: ev.aula + ' (Excepción)'
+                });
+            });
 
+            // Re-check for virtual only after adding daily events
+            teacherClasses.forEach(tc => {
+                let hasPresencial = presencialAssignments.some(pa => pa.comision === tc.comision && pa.materia === tc.materia && pa.dia === tc.dia && pa.profesor === tc.profesor);
                 if (!hasPresencial) {
                     presencialAssignments.push({
                         ...tc,
@@ -1929,6 +1988,12 @@
                                 if ((week.SEMANA === "1" && com === "TSAS 1C" && (dia === "Lunes" || dia === "Martes")) ||
                                     (week.SEMANA === "1" && com.endsWith("1C") && dia === "Miércoles")) {
                                     displayAula = "No hay clases";
+                                    isCancelled = true;
+                                }
+                                
+                                const isUserCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === dia && cc.comision === com && cc.materia === c.Materia);
+                                if (isUserCanceled) {
+                                    displayAula = "Cancelada / Reprogramada";
                                     isCancelled = true;
                                 }
 
