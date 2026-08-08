@@ -2012,20 +2012,20 @@
 
             const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
             
-            // Generate Headers (Columns are Aulas now)
-            let headHtml = '<tr><th>Día</th>';
-            orderedAulas.forEach(aula => {
-                headHtml += `<th>${aula}</th>`;
+            // Generate Headers (Columns are Dias now)
+            let headHtml = '<tr><th>Aula</th>';
+            dias.forEach(dia => {
+                headHtml += `<th>${dia}</th>`;
             });
             headHtml += '</tr>';
             thead.innerHTML = headHtml;
 
-            // Generate Body (Rows are Days now)
+            // Generate Body (Rows are Aulas now)
             let html = '';
-            dias.forEach(dia => {
-                html += `<tr><td style="font-weight:bold; text-align:center; vertical-align:middle; font-size:1.1rem; background:#f4f7f6;">${dia}</td>`;
+            orderedAulas.forEach(aula => {
+                html += `<tr><td style="font-weight:bold; text-align:center; vertical-align:middle; font-size:1.1rem; background:#f4f7f6;">${aula}</td>`;
                 
-                orderedAulas.forEach(aula => {
+                dias.forEach(dia => {
                     let assignedClasses = [];
                     
                     if (aulaToComisiones[aula]) {
