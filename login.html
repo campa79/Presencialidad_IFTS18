@@ -383,17 +383,20 @@
             max-width: 250px;
         }
         .matrix-table th {
-            background: var(--light-bg);
+            background: #ffffff;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 30;
         }
         .matrix-table th:first-child, .matrix-table td:first-child {
             position: sticky;
             left: 0;
-            background: var(--light-bg);
+            background: #ffffff;
             z-index: 20;
             font-weight: bold;
+        }
+        .matrix-table th:first-child {
+            z-index: 40;
         }
         .matrix-cell-virtual {
             background-color: #f8f9fa;
@@ -2044,10 +2047,10 @@
                     if (assignedClasses.length > 0) {
                         // Reserved
                         let cellContent = assignedClasses.map(c => `
-                            <div style="margin-bottom: 0.5rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.5rem;">
-                                <div class="reserved-title">${c.comision}</div>
-                                <div class="reserved-info"><i class="fas fa-book"></i> ${c.materia}</div>
-                                <div class="reserved-info"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
+                            <div style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1;">
+                                <div class="reserved-title" style="font-size: 0.85rem; margin-bottom: 0.15rem;">${c.comision}</div>
+                                <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${c.materia}"><i class="fas fa-book"></i> ${c.materia}</div>
+                                <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
                             </div>
                         `).join('');
                         html += `<td class="cell-reserved">${cellContent}</td>`;
