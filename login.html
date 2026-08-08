@@ -732,6 +732,21 @@
         </div>
     </div>
 
+    <!-- Modal Excepcion Clase -->
+    <div id="exceptionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: var(--shadow);">
+            <h2 style="margin-bottom: 1rem;"><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Excepción de Clase</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-muted);">¿Qué deseas hacer con esta clase específica para este día?</p>
+            <div id="exceptionModalDetails" style="background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <button onclick="cancelClassException()" class="download-btn" style="margin: 0; background: var(--danger); width: 100%; justify-content: center;"><i class="fas fa-times"></i> Cancelar Clase (Solo Hoy)</button>
+                <button onclick="rescheduleClassException()" class="download-btn" style="margin: 0; background: var(--secondary); width: 100%; justify-content: center;"><i class="fas fa-calendar-plus"></i> Reprogramar (Crear Evento)</button>
+                <button onclick="closeExceptionModal()" style="margin: 0; background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;">Volver</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Eventos Diarios -->
     <div id="dailyEventModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
         <div style="background: white; padding: 2rem; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto;">
@@ -1608,6 +1623,7 @@
         let schedule = DB.schedule;
         let professors = DB.professors;
         let dailyEvents = [];
+        let canceledClasses = [];
         let allComisiones = Object.keys(professors).sort((a, b) => a.localeCompare(b));
         
         // Fetch real-time data from Firebase
@@ -1616,6 +1632,7 @@
                 const scheduleSnap = await db.collection('config').doc('schedule').get();
                 const professorsSnap = await db.collection('config').doc('professors').get();
                 const dailyEventsSnap = await db.collection('config').doc('daily_events').get();
+                const canceledClassesSnap = await db.collection('config').doc('canceled_classes').get();
                 
                 if (scheduleSnap.exists) {
                     schedule = scheduleSnap.data().data;
@@ -1626,6 +1643,9 @@
                 }
                 if (dailyEventsSnap.exists) {
                     dailyEvents = dailyEventsSnap.data().data || [];
+                }
+                if (canceledClassesSnap.exists) {
+                    canceledClasses = canceledClassesSnap.data().data || [];
                 }
                 renderResults(); // Refresh UI with Firebase data
             } catch(e) {
@@ -2098,20 +2118,23 @@
                         aulaToComisiones[aula].forEach(com => {
                             if (professors[com] && professors[com][dia]) {
                                 professors[com][dia].forEach(clase => {
-                                    assignedClasses.push({
-                                        comision: com,
-                                        profesor: clase.Profesor,
-                                        materia: clase.Materia
-                                    });
+                                    // Check if canceled
+                                    const isCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === dia && cc.comision === com && cc.materia === clase.Materia);
+                                    if (!isCanceled) {
+                                        assignedClasses.push({
+                                            comision: com,
+                                            profesor: clase.Profesor,
+                                            materia: clase.Materia
+                                        });
+                                    }
                                 });
                             }
                         });
                     }
-                    
                     if (assignedClasses.length > 0) {
                         // Reserved
                         let cellContent = assignedClasses.map(c => `
-                            <div style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1;">
+                            <div onclick="openExceptionModal('${week.SEMANA}', '${dia}', '${c.comision}', '${c.materia}', '${c.profesor}')" style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1; cursor: pointer;" title="Click para cancelar o reprogramar esta clase">
                                 <div class="reserved-title" style="font-size: 0.85rem; margin-bottom: 0.15rem;">${c.comision}</div>
                                 <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${c.materia}"><i class="fas fa-book"></i> ${c.materia}</div>
                                 <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
@@ -2604,6 +2627,58 @@
                 alert('Error al guardar en Firebase');
             }
         }
+        
+        let currentExceptionTarget = null;
+        function openExceptionModal(semana, dia, comision, materia, profesor) {
+            currentExceptionTarget = { semana, dia, comision, materia, profesor };
+            document.getElementById('exceptionModalDetails').innerHTML = `
+                <strong>Semana:</strong> ${semana} - <strong>Día:</strong> ${dia}<br>
+                <strong>Comisión:</strong> ${comision}<br>
+                <strong>Materia:</strong> ${materia}<br>
+                <strong>Profesor:</strong> ${profesor}
+            `;
+            document.getElementById('exceptionModal').style.display = 'flex';
+        }
+
+        function closeExceptionModal() {
+            document.getElementById('exceptionModal').style.display = 'none';
+            currentExceptionTarget = null;
+        }
+
+        async function saveCanceledClassesToFirebase() {
+            try {
+                await db.collection('config').doc('canceled_classes').set({data: canceledClasses});
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function cancelClassException() {
+            if(!currentExceptionTarget) return;
+            canceledClasses.push(currentExceptionTarget);
+            await saveCanceledClassesToFirebase();
+            closeExceptionModal();
+            renderAdminMatrix();
+            alert('Clase cancelada correctamente para ese día.');
+        }
+
+        function rescheduleClassException() {
+            if(!currentExceptionTarget) return;
+            // 1. Cancel original class
+            canceledClasses.push(currentExceptionTarget);
+            saveCanceledClassesToFirebase(); // Async, don't block
+            
+            // 2. Open Daily Event modal with prefilled data
+            switchAdminTab('tab-daily-events'); // Switch to daily events tab
+            openDailyEventModal();
+            
+            document.getElementById('crudDailyComision').value = currentExceptionTarget.comision;
+            document.getElementById('crudDailyMateria').value = currentExceptionTarget.materia;
+            document.getElementById('crudDailyProfesor').value = currentExceptionTarget.profesor;
+            
+            closeExceptionModal();
+            alert('La clase original fue cancelada. Ahora selecciona la Fecha y el Aula para la reprogramación.');
+        }
 
         function handleExcelUpload(event) {
             const file = event.target.files[0];
@@ -2744,13 +2819,16 @@
                                         const classYMD = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
                                         
                                         if (classYMD === targetYMD) {
-                                            results.push({
-                                                fecha: `${d.getDate()}/${d.getMonth()+1}`,
-                                                carrera: com.split(' ')[0],
-                                                materia: c.Materia,
-                                                profesor: c.Profesor,
-                                                aula: aula
-                                            });
+                                            const isCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === diaName && cc.comision === com && cc.materia === c.Materia);
+                                            if (!isCanceled) {
+                                                results.push({
+                                                    fecha: `${d.getDate()}/${d.getMonth()+1}`,
+                                                    carrera: com.split(' ')[0],
+                                                    materia: c.Materia,
+                                                    profesor: c.Profesor,
+                                                    aula: aula
+                                                });
+                                            }
                                         }
                                     }
                                 }
