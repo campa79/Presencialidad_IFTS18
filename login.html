@@ -1780,7 +1780,7 @@
                             isCancelled = true;
                         }
                         
-                        const isUserCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === tc.dia && cc.comision === tc.comision && cc.materia === tc.materia);
+                        const isUserCanceled = canceledClasses.some(cc => cc.semana == week.SEMANA && cc.dia === tc.dia && cc.comision === tc.comision && cc.materia === tc.materia);
                         if (isUserCanceled) {
                             return; // Borrarlo completamente de la búsqueda principal
                         }
@@ -1990,7 +1990,7 @@
                                     isCancelled = true;
                                 }
                                 
-                                const isUserCanceled = canceledClasses.some(cc => cc.semana === week.SEMANA && cc.dia === dia && cc.comision === com && cc.materia === c.Materia);
+                                const isUserCanceled = canceledClasses.some(cc => cc.semana == week.SEMANA && cc.dia === dia && cc.comision === com && cc.materia === c.Materia);
                                 if (isUserCanceled) {
                                     return; // Borrarlo completamente de la búsqueda principal
                                 }
