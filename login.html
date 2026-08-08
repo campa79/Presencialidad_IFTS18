@@ -2283,18 +2283,64 @@
             saveProfessorsToFirebase();
         }
 
+        function updateScheduleDropdowns() {
+            const selects = Array.from(document.querySelectorAll('.crud-sch-select'));
+            let selectedAulas = selects.map(s => s.value.trim()).filter(v => v !== "" && v !== "Virtual" && v !== "Feriado" && v !== "Cancelado");
+
+            selects.forEach(select => {
+                const currentVal = select.value.trim();
+                Array.from(select.options).forEach(opt => {
+                    const optVal = opt.value.trim();
+                    if (optVal !== "" && optVal !== "Virtual" && optVal !== "Feriado" && optVal !== "Cancelado") {
+                        if (selectedAulas.includes(optVal) && optVal !== currentVal) {
+                            opt.disabled = true;
+                            opt.style.color = "var(--danger)";
+                            opt.text = optVal + " (Ocupada)";
+                        } else {
+                            opt.disabled = false;
+                            opt.style.color = "";
+                            opt.text = optVal;
+                        }
+                    }
+                });
+            });
+        }
+
         function openScheduleModal(idx = -1) {
             currentCrudType = 'schedule';
             currentCrudId = idx;
             
             let week = idx !== -1 ? schedule[idx] : { SEMANA: schedule.length + 1, FECHAS: '' };
             let comisionesInputs = '';
+            
+            const baseAulas = ["SALÓN PB", "201 2° Piso", "202 2° Piso", "203 2° Piso", "204 2° Piso"];
+            let customAulas = [];
+            try { customAulas = JSON.parse(localStorage.getItem('customAulas') || '[]'); } catch(e) {}
+            const allAulas = [...baseAulas, ...customAulas];
+
             allComisiones.forEach(c => {
                 let val = week[c] || '';
+                let isCustomVal = val && !allAulas.includes(val) && val !== "Virtual" && val !== "Feriado" && val !== "Cancelado" ? true : false;
+                
+                let optionsHtml = `<option value="">-- Sin Asignar --</option>`;
+                optionsHtml += `<option value="Virtual" ${val === 'Virtual' ? 'selected' : ''}>Virtual</option>`;
+                optionsHtml += `<option value="Feriado" ${val === 'Feriado' ? 'selected' : ''}>Feriado</option>`;
+                optionsHtml += `<option value="Cancelado" ${val === 'Cancelado' ? 'selected' : ''}>Cancelado</option>`;
+                
+                allAulas.forEach(a => {
+                    optionsHtml += `<option value="${a}" ${val === a ? 'selected' : ''}>${a}</option>`;
+                });
+                
+                if (isCustomVal) {
+                    optionsHtml += `<option value="${val}" selected>${val}</option>`;
+                }
+                
                 comisionesInputs += `
                     <div class="modal-form-group" style="margin-bottom: 0.5rem;">
                         <label style="font-size: 0.9rem;">${c}</label>
-                        <input type="text" id="crud_sch_${c}" value="${val}" placeholder="Aula">
+                        <select id="crud_sch_${c}" class="crud-sch-select" onchange="updateScheduleDropdowns()" style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                            ${optionsHtml}
+                        </select>
                     </div>
                 `;
             });
@@ -2315,6 +2361,7 @@
                 </div>
             `;
             document.getElementById('crudModal').style.display = 'flex';
+            updateScheduleDropdowns();
         }
 
         function deleteSchedule(idx) {
