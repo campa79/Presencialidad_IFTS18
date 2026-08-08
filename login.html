@@ -761,15 +761,15 @@
             </div>
             <div class="modal-form-group">
                 <label>Comisión / Carrera</label>
-                <input type="text" id="crudDailyComision" placeholder="Ej. TSAS 1C">
+                <select id="crudDailyComision" style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);"></select>
             </div>
             <div class="modal-form-group">
                 <label>Materia</label>
-                <input type="text" id="crudDailyMateria">
+                <select id="crudDailyMateria" style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);"></select>
             </div>
             <div class="modal-form-group">
                 <label>Profesor</label>
-                <input type="text" id="crudDailyProfesor">
+                <select id="crudDailyProfesor" style="width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);"></select>
             </div>
             <div class="modal-form-group">
                 <label>Aula</label>
@@ -2695,6 +2695,33 @@
 
         function openDailyEventModal() {
             document.getElementById('crudDailyFecha').value = '';
+            
+            // Populate Dropdowns
+            let allMaterias = new Set();
+            let allProfesores = new Set();
+            Object.values(professors).forEach(diasObj => {
+                Object.values(diasObj).forEach(clasesArr => {
+                    clasesArr.forEach(c => {
+                        if (c.Materia) allMaterias.add(c.Materia.trim());
+                        if (c.Profesor) allProfesores.add(c.Profesor.trim());
+                    });
+                });
+            });
+            allMaterias = Array.from(allMaterias).sort((a, b) => a.localeCompare(b));
+            allProfesores = Array.from(allProfesores).sort((a, b) => a.localeCompare(b));
+
+            let comHtml = '<option value="">-- Seleccionar Comisión --</option>';
+            allComisiones.forEach(c => comHtml += `<option value="${c}">${c}</option>`);
+            document.getElementById('crudDailyComision').innerHTML = comHtml;
+
+            let matHtml = '<option value="">-- Seleccionar Materia --</option>';
+            allMaterias.forEach(m => matHtml += `<option value="${m}">${m}</option>`);
+            document.getElementById('crudDailyMateria').innerHTML = matHtml;
+
+            let profHtml = '<option value="">-- Seleccionar Profesor --</option>';
+            allProfesores.forEach(p => profHtml += `<option value="${p}">${p}</option>`);
+            document.getElementById('crudDailyProfesor').innerHTML = profHtml;
+
             document.getElementById('crudDailyComision').value = '';
             document.getElementById('crudDailyMateria').value = '';
             document.getElementById('crudDailyProfesor').value = '';
