@@ -2183,6 +2183,20 @@
                 dias.forEach(dia => {
                     let assignedClasses = [];
                     
+                    // calculate YYYY-MM-DD for this cell
+                    let cellYMD = '';
+                    const match = week.FECHAS.match(/(\d+)\/(\d+)/);
+                    if(match) {
+                        const d = new Date(2026, parseInt(match[2]) - 1, parseInt(match[1]));
+                        const dayMap = { 'Lunes': 0, 'Martes': 1, 'Miércoles': 2, 'Jueves': 3, 'Viernes': 4 };
+                        d.setDate(d.getDate() + (dayMap[dia] || 0));
+                        
+                        const yr = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        cellYMD = `${yr}-${m}-${day}`;
+                    }
+
                     if (aulaToComisiones[aula]) {
                         aulaToComisiones[aula].forEach(com => {
                             if (professors[com] && professors[com][dia]) {
@@ -2193,22 +2207,48 @@
                                         assignedClasses.push({
                                             comision: com,
                                             profesor: clase.Profesor,
-                                            materia: clase.Materia
+                                            materia: clase.Materia,
+                                            isDailyEvent: false
                                         });
                                     }
                                 });
                             }
                         });
                     }
+                    
+                    // Add Daily Events matching this cell
+                    dailyEvents.forEach(ev => {
+                        if (ev.fecha === cellYMD && ev.aula === aula) {
+                            assignedClasses.push({
+                                comision: ev.comision,
+                                profesor: ev.profesor,
+                                materia: ev.materia + " (Evento)",
+                                isDailyEvent: true
+                            });
+                        }
+                    });
+
                     if (assignedClasses.length > 0) {
                         // Reserved
-                        let cellContent = assignedClasses.map(c => `
-                            <div onclick="openExceptionModal('${week.SEMANA}', '${dia}', '${c.comision}', '${c.materia}', '${c.profesor}')" style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1; cursor: pointer;" title="Click para cancelar o reprogramar esta clase">
-                                <div class="reserved-title" style="font-size: 0.85rem; margin-bottom: 0.15rem;">${c.comision}</div>
-                                <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${c.materia}"><i class="fas fa-book"></i> ${c.materia}</div>
-                                <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
-                            </div>
-                        `).join('');
+                        let cellContent = assignedClasses.map(c => {
+                            if(c.isDailyEvent) {
+                                return `
+                                <div onclick="alert('Este es un Evento Diario. Para editarlo o borrarlo, ve a la pestaña Eventos Diarios.')" style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1; cursor: pointer; background-color: #fff3cd; border-radius: 4px; padding: 2px;" title="Evento Único">
+                                    <div class="reserved-title" style="font-size: 0.85rem; margin-bottom: 0.15rem; color: #856404;">${c.comision}</div>
+                                    <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #856404;" title="${c.materia}"><i class="fas fa-book"></i> ${c.materia}</div>
+                                    <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0; color: #856404;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
+                                </div>
+                                `;
+                            } else {
+                                return `
+                                <div onclick="openExceptionModal('${week.SEMANA}', '${dia}', '${c.comision}', '${c.materia}', '${c.profesor}')" style="margin-bottom: 0.25rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.25rem; line-height: 1.1; cursor: pointer;" title="Click para cancelar o reprogramar esta clase">
+                                    <div class="reserved-title" style="font-size: 0.85rem; margin-bottom: 0.15rem;">${c.comision}</div>
+                                    <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${c.materia}"><i class="fas fa-book"></i> ${c.materia}</div>
+                                    <div class="reserved-info" style="font-size: 0.75rem; margin-bottom: 0;"><i class="fas fa-user-tie"></i> ${c.profesor}</div>
+                                </div>
+                                `;
+                            }
+                        }).join('');
                         html += `<td class="cell-reserved">${cellContent}</td>`;
                     } else {
                         // Free
