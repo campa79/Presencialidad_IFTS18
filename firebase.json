@@ -1,0 +1,18 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "*.py",
+      "Presencialidad 1C 2026_Backup_Pre_Refactor/**",
+      "*.txt",
+      "*.json",
+      "*.xlsx"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

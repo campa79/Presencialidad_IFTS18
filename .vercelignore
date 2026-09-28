@@ -1,0 +1,8 @@
+.vercelignore
+firebase.json
+.firebaserc
+*.py
+Presencialidad 1C 2026_Backup_Pre_Refactor/
+*.txt
+*.json
+*.xlsx
